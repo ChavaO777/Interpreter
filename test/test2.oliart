@@ -1,0 +1,15 @@
+program uno
+{
+    var x: int;
+    var y: int
+}
+{
+    read x;
+    read y;
+    
+    ifelse (x < y)
+        set x x + y;
+        set x x - y;
+    
+    print x;
+}

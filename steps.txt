@@ -1,0 +1,7 @@
+1. Specify terminal tokens
+2. Write grammar rules
+    2.1 Verify that the grammar works
+    2.2 
+    2.3 Write the C code for some (or all) the grammar rules.
+3. Build the symbols table
+4. Design the syntax tree node
