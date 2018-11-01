@@ -40,6 +40,8 @@ read                                                    { return RES_WORD_READ; 
 print                                                   { return RES_WORD_PRINT; }
 if                                                      { return RES_WORD_IF; }
 ifelse                                                  { return RES_WORD_IFELSE; }
+int                                                     { return RES_WORD_INT; }
+float                                                   { return RES_WORD_FLOAT; }
 
 "="                                                     { return SYMBOL_EQ; } /* Symbols */
 "<"                                                     { return SYMBOL_LT; }
@@ -56,7 +58,6 @@ ifelse                                                  { return RES_WORD_IFELSE
 ")"                                                     { return SYMBOL_RT_PARENTHESES; }
 "{"                                                     { return SYMBOL_LT_BRACKET; }
 "}"                                                     { return SYMBOL_RT_BRACKET; }
-
 
 {DIGIT}*                                                { yylval = atoi(yytext); return INTEGER_NUMBER; /* Convert the number to INTEGER_NUMBER */}
 
