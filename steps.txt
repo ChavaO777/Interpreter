@@ -3,5 +3,14 @@
     2.1 Verify that the grammar works
     2.2 
     2.3 Write the C code for some (or all) the grammar rules.
-3. Build the symbols table
-4. Design the syntax tree node
+3. Declare a C union before declaring the tokens. Outside of the brackets with %'s.
+
+    %union {
+
+        int iValue
+        double fValue
+        struct node* tree;
+    }
+
+4. Build the symbols table
+5. Design the syntax tree node
