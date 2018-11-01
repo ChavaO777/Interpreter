@@ -8,11 +8,11 @@ Interpreter project for the Compiler Design class
 - gcc lex.yy.c <TAB.C_FILE_NAME> -ll
 - ./a.out
 
-> **E.g.**
+> **Note:** the "-ll" flag is "-lfl" in Windows.
+
+**E.g.**
 
 - flex calculadora.lex
 - bison -d calculadora.y
 - gcc lex.yy.c calculadora.tab.c -ll
 - ./a.out
-
-> **Note:** the "-ll" flag is "-lfl" in Windows.
