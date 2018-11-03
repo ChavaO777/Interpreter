@@ -304,6 +304,23 @@ int getFloatingPointValueFromSymbol(char const *symbolName){
   return 0;
 }
 
+/**
+ * Structure of the node for the syntax tree.
+ */ 
+struct SyntaxTreeNode {
+
+  // This attribute represents the data type stored by this node.
+  int type;
+  char *name;
+  struct SyntaxTreeNode *arrPtr[4];
+  union {
+
+    int intVal; /* Integer value */
+    double doubleVal; /* Floating-point value */
+  } value;
+  struct SymbolTableNode *next;
+};
+
 int yyerror(char const * s) {
   fprintf(stderr, "Error: %s\n", s);
 }
