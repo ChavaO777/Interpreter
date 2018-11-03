@@ -14,6 +14,9 @@
 #include <stdio.h>
 #include <math.h>
 #include "interpreter.tab.h"
+
+#include <stdlib.h> /* malloc. */
+#include <string.h> /* strlen. */
 %}
 
 /**
@@ -22,10 +25,10 @@
  */ 
 
 %token RES_WORD_PROGRAM IDENTIFIER SYMBOL_LT_BRACKET SYMBOL_RT_BRACKET SYMBOL_SEMICOLON RES_WORD_VAR SYMBOL_COLON RES_WORD_INT RES_WORD_FLOAT INTEGER_NUMBER FLOATING_POINT_NUMBER RES_WORD_SET RES_WORD_READ RES_WORD_PRINT RES_WORD_IF SYMBOL_LT_PARENTHESES SYMBOL_RT_PARENTHESES RES_WORD_IFELSE RES_WORD_WHILE RES_WORD_FOR RES_WORD_TO RES_WORD_STEP RES_WORD_DO SYMBOL_PLUS SYMBOL_MINUS SYMBOL_STAR SYMBOL_FORWARD_SLASH SYMBOL_LT SYMBOL_GT SYMBOL_EQ SYMBOL_LEQ SYMBOL_GEQ
-// %type <tree> expr term...
-// %type <iValue> ...
-// %type <fValue> ...
 %start prog 
+%type <tree> SYMBOL_SEMICOLON 
+%type <intVal> INTEGER_NUMBER
+%type <doubleVal> FLOATING_POINT_NUMBER
 
 %%
 
@@ -118,6 +121,188 @@ expresion : expr SYMBOL_LT expr
 ;
 
 %%
+
+// Error codes
+#define ERROR_CODE_SYMBOL_NOT_FOUND 1
+#define ERROR_CODE_INVALID_ASSIGNMENT_TO_INT_SYMBOL 2
+#define ERROR_CODE_INVALID_ASSIGNMENT_TO_FLOATING_POINT_SYMBOL 3
+
+// Error messages
+#define ERROR_MESSAGE_SYMBOL_NOT_FOUND "Attempted to retrieve a non-existent symbol."
+#define ERROR_MESSAGE_INVALID_ASSIGNMENT_TO_INT_SYMBOL "Attempted to assign an integer value to a symbol storing a floating-point value."
+#define ERROR_MESSAGE_INVALID_ASSIGNMENT_TO_FLOATING_POINT_SYMBOL "Attempted to assign a floating-point value to a symbol storing an integer value."
+
+// Symbol table data types
+#define SYMBOL_TABLE_NODE_INTEGER_DATA_TYPE 1
+#define SYMBOL_TABLE_NODE_FLOATING_POINT_DATA_TYPE 1
+
+void handleError(int errorCode, char *errorMessage){
+
+  printf("Error #%d: %s\n", errorCode, errorMessage);
+  exit(1);
+}
+
+/* Data type for the nodes in the symbol table */
+
+struct SymbolTableNode {
+
+  char *name;
+
+  // This attribute represents the data type stored by this symbol: 
+  // int, float or pointer to function (for later).
+  int type;
+  union {
+
+    int intVal; /* Integer value */
+    double doubleVal; /* Floating-point value */
+    // struct node* ptrFunction; // For later
+  } value;
+
+  struct SymbolTableNode *next;
+};
+
+// Declaration of the head of the linked list representing the symbol table.
+struct SymbolTableNode *symbolTableHead;
+
+/**
+ * Function that inserts a new symbol to the symbol table.
+ * 
+ * @param symbolName the name of the symbol to insert.
+ * @param symbolType the type of the symbol to insert: int, float or function pointer
+ * @returns a pointer to the new node, which will now be the head of the linked list that 
+ * represents the symbol table.
+ */ 
+struct SymbolTableNode* insertToSymbolTable(char const *symbolName, int symbolType){
+
+  // Malloc for the new node
+  struct SymbolTableNode* newNodePtr = (struct SymbolTableNode*) malloc(sizeof(struct SymbolTableNode));
+  
+  // Malloc for the symbol's name
+  newNodePtr->name = (char *) malloc(strlen(symbolName) + 1);
+  strcpy (newNodePtr->name, symbolName);
+  newNodePtr->type = symbolType;
+
+  // Set the default values to 0
+  newNodePtr->value.intVal = 0;
+  newNodePtr->value.doubleVal = 0.0;
+
+  // Insert at the beginning of the list
+  newNodePtr->next = (struct SymbolTableNode*)symbolTableHead;
+
+  return newNodePtr;
+}
+
+/**
+ * Function that retrieves a symbol from the symbol table given its name.
+ * 
+ * @param symbolName the name of the symbol to retrieve.
+ * @returns a pointer to the symbol or 0 if the symbol was not found.
+ */ 
+struct SymbolTableNode* retrieveFromSymbolTable(char const *symbolName){
+
+  struct SymbolTableNode *currPtr = symbolTableHead;
+
+  // Traverse the linked list and compare the name of the current symbol
+  // with the name of the symbol that you're looking for.
+  while(currPtr != NULL){
+
+    if(strcmp(currPtr->name, symbolName) == 0)
+      return currPtr;
+
+    currPtr = currPtr->next;
+  }
+
+  handleError(ERROR_CODE_SYMBOL_NOT_FOUND, ERROR_MESSAGE_SYMBOL_NOT_FOUND);
+  return 0;
+}
+
+/**
+ * Function that assigns an integer value to a symbol in the symbol table.
+ * 
+ * @param symbolName the name of the symbol to which a value will be assigned.
+ * @param newIntegerValue the new integer value to assign to that symbol.
+ */ 
+void setIntValueToSymbol(char const *symbolName, int newIntegerValue){
+
+  struct SymbolTableNode *symbolPtr = retrieveFromSymbolTable(symbolName);
+
+  if(symbolPtr != NULL){
+
+    // Check that the symbol does in fact store an integer
+    if(symbolPtr->type == SYMBOL_TABLE_NODE_INTEGER_DATA_TYPE){
+
+      symbolPtr->value.intVal = newIntegerValue;
+    }
+    else{
+
+      // Error out and exit!
+      handleError(ERROR_CODE_INVALID_ASSIGNMENT_TO_INT_SYMBOL, 
+        ERROR_MESSAGE_INVALID_ASSIGNMENT_TO_INT_SYMBOL);
+    }
+  }
+}
+
+/**
+ * Function that assigns a floating-point value to a symbol in the symbol table.
+ * 
+ * @param symbolName the name of the symbol to which a value will be assigned.
+ * @param newDoubleValue the new floating-point value to assign to that symbol.
+ */ 
+void setDoubleValueToSymbol(char const *symbolName, double newDoubleValue){
+
+  struct SymbolTableNode *symbolPtr = retrieveFromSymbolTable(symbolName);
+
+  if(symbolPtr != NULL){
+
+    // Check that the symbol does in fact store a double
+    if(symbolPtr->type == SYMBOL_TABLE_NODE_FLOATING_POINT_DATA_TYPE){
+
+      symbolPtr->value.doubleVal = newDoubleValue;
+    }
+    else{
+
+      // Error out and exit!
+      handleError(ERROR_CODE_INVALID_ASSIGNMENT_TO_FLOATING_POINT_SYMBOL, 
+        ERROR_MESSAGE_INVALID_ASSIGNMENT_TO_FLOATING_POINT_SYMBOL);
+    }
+  }
+}
+
+/**
+ * Function that retrieves the integer value of a symbol in the symbol table.
+ * 
+ * @param symbolName the name of the symbol to which a value will be assigned.
+ * @returns the integer value stored by that symbol
+ */ 
+int getIntValueFromSymbol(char const *symbolName){
+
+  struct SymbolTableNode *symbolPtr = retrieveFromSymbolTable(symbolName);
+
+  if(symbolPtr != NULL){
+
+    return symbolPtr->value.intVal;
+  }
+
+  return 0;
+}
+
+/**
+ * Function that retrieves the floating-point value of a symbol in the symbol table.
+ * 
+ * @param symbolName the name of the symbol to which a value will be assigned.
+ * @returns the floating-point value stored by that symbol
+ */ 
+int getFloatingPointValueFromSymbol(char const *symbolName){
+
+  struct SymbolTableNode *symbolPtr = retrieveFromSymbolTable(symbolName);
+
+  if(symbolPtr != NULL){
+
+    return symbolPtr->value.doubleVal;
+  }
+
+  return 0;
+}
 
 int yyerror(char const * s) {
   fprintf(stderr, "Error: %s\n", s);
