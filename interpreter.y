@@ -11,17 +11,15 @@
  */
 
 %{
-#include<stdio.h>
-#include<math.h>
+#include <stdio.h>
+#include <math.h>
+#include "interpreter.tab.h"
 %}
 
 /**
- * The grammar's terminals. The declaration below turns inot the constants definition
+ * The grammar's terminals. The declaration below turns into the constants definition
  * in the file interpreter.tab.h that must be included in the .flex file.
  */ 
-
-// %token NUM SUMA RESTA SYMBOL_MODULO DIVIDE MULTI SYMBOL_EXPONENT PAREND PARENI FINEXP
-// %start exp
 
 %token RES_WORD_PROGRAM IDENTIFIER SYMBOL_LT_BRACKET SYMBOL_RT_BRACKET SYMBOL_SEMICOLON RES_WORD_VAR SYMBOL_COLON RES_WORD_INT RES_WORD_FLOAT INTEGER_NUMBER FLOATING_POINT_NUMBER RES_WORD_SET RES_WORD_READ RES_WORD_PRINT RES_WORD_IF SYMBOL_LT_PARENTHESES SYMBOL_RT_PARENTHESES RES_WORD_IFELSE RES_WORD_WHILE RES_WORD_FOR RES_WORD_TO RES_WORD_STEP RES_WORD_DO SYMBOL_PLUS SYMBOL_MINUS SYMBOL_STAR SYMBOL_FORWARD_SLASH SYMBOL_LT SYMBOL_GT SYMBOL_EQ SYMBOL_LEQ SYMBOL_GEQ
 // %type <tree> expr term...
@@ -54,7 +52,7 @@ prog : RES_WORD_PROGRAM IDENTIFIER SYMBOL_LT_BRACKET opt_decls SYMBOL_RT_BRACKET
 ;
 
 opt_decls : decls
-          |
+          | /* epsilon */
 ;
 
 decls : dec SYMBOL_SEMICOLON decls 
@@ -122,10 +120,13 @@ expresion : expr SYMBOL_LT expr
 %%
 
 int yyerror(char const * s) {
-  fprintf(stderr, "%s\n", s);
+  fprintf(stderr, "Error: %s\n", s);
 }
 
 int main() {
+
+  // extern int yydebug;
+  // yydebug = 1;
 
   yyparse();
   return 0;

@@ -9,8 +9,8 @@
 %{
 
 /* Includes */
-#include<stdlib.h>
-#include<math.h>
+#include <stdlib.h>
+#include <math.h>
 
 /* Include the bison-generated file to have the token definitions.*/
 #include "interpreter.tab.h"
@@ -22,6 +22,9 @@
 #define END_OF_FILE             -100
 
 %} 
+
+%option lex-compat
+%option yylineno
 
 DIGIT       [0-9]
 DIGITWZ     [1-9]
@@ -69,9 +72,9 @@ float                                                   { return RES_WORD_FLOAT;
 
 [/]+.*                                                  { printf(""); } /* Comment */
 
-" "                                                     { return SYMBOL_SPACE; }
+" "                                                     { ; } /* If the space returns a value, a syntax error will be produced. */
 
-"\n"                                                    { return NEW_LINE; }
+"\n"                                                    { yylineno++; } /* If the new line returns a value, a syntax error will be produced. */
 
 .                                                       { return 1100; } /* Anything else */
 %%
