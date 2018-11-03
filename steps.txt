@@ -13,3 +13,4 @@
 4. Build the symbols table                                                              DONE!
 5. Design the syntax tree node
 6. Write the C code for some (or all) the grammar rules.
+7. Write the functions for traversing the syntax tree (executing the program)
