@@ -123,18 +123,18 @@ expresion : expr SYMBOL_LT expr
 %%
 
 // Error codes
-#define ERROR_CODE_SYMBOL_NOT_FOUND 1
-#define ERROR_CODE_INVALID_ASSIGNMENT_TO_INT_SYMBOL 2
-#define ERROR_CODE_INVALID_ASSIGNMENT_TO_FLOATING_POINT_SYMBOL 3
+#define ERROR_CODE_SYMBOL_NOT_FOUND                                         1
+#define ERROR_CODE_INVALID_ASSIGNMENT_TO_INT_SYMBOL                         2
+#define ERROR_CODE_INVALID_ASSIGNMENT_TO_FLOATING_POINT_SYMBOL              3
 
 // Error messages
-#define ERROR_MESSAGE_SYMBOL_NOT_FOUND "Attempted to retrieve a non-existent symbol."
-#define ERROR_MESSAGE_INVALID_ASSIGNMENT_TO_INT_SYMBOL "Attempted to assign an integer value to a symbol storing a floating-point value."
-#define ERROR_MESSAGE_INVALID_ASSIGNMENT_TO_FLOATING_POINT_SYMBOL "Attempted to assign a floating-point value to a symbol storing an integer value."
+#define ERROR_MESSAGE_SYMBOL_NOT_FOUND                                      "Attempted to retrieve a non-existent symbol."
+#define ERROR_MESSAGE_INVALID_ASSIGNMENT_TO_INT_SYMBOL                      "Attempted to assign an integer value to a symbol storing a floating-point value."
+#define ERROR_MESSAGE_INVALID_ASSIGNMENT_TO_FLOATING_POINT_SYMBOL           "Attempted to assign a floating-point value to a symbol storing an integer value."
 
 // Symbol table data types
-#define SYMBOL_TABLE_NODE_INTEGER_DATA_TYPE 1
-#define SYMBOL_TABLE_NODE_FLOATING_POINT_DATA_TYPE 1
+#define SYMBOL_TABLE_NODE_INTEGER_DATA_TYPE                                 1
+#define SYMBOL_TABLE_NODE_FLOATING_POINT_DATA_TYPE                          2
 
 void handleError(int errorCode, char *errorMessage){
 
@@ -333,4 +333,3 @@ int main() {
   yyparse();
   return 0;
 }
-
