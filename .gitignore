@@ -2,6 +2,8 @@
 *.tab.h
 *.yy.c
 
+.vscode
+
 # Prerequisites
 *.d
 
