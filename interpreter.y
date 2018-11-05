@@ -419,13 +419,27 @@ struct SyntaxTreeNode* createNode(int iVal, double dVal, char* idName,
     return newNodePtr;
 }
 
+void printNodeType(int type, char* name){
+
+  // If our names array contains an entry for this type
+  if(type >= 0 && type < sizeof(SyntaxTreeNodeTypeName)){
+
+    printf("%s: %s\n", name, SyntaxTreeNodeTypeName[type]);
+  }
+  else{
+
+    printf("%s: %d\n", name, type);
+  }
+}
+
 void printTree(struct SyntaxTreeNode* node){
 
   if(node == NULL)
     return;
 
-  printf("type: %d\n", node->type);
-  printf("parentNodeType: %d\n", node->parentNodeType);
+
+  printNodeType(node->type, "type");
+  printNodeType(node->parentNodeType, "parentNodeType");
 
   for(int i = 0; i < 4; i++)
     printf("ptr #%d: %p\n", i + 1, node->arrPtr[i]);
