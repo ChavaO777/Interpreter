@@ -17,6 +17,20 @@
 
 #include <stdlib.h> /* malloc. */
 #include <string.h> /* strlen. */
+
+// Enum for identifying the parent node of each node in the syntax tree
+enum SyntaxTreeNodeType { 
+  PROGRAM, STMT, ASSIGN_STMT, IF_STMT, ITER_STMT, CMP_STMT, 
+  SET, EXPR, READ, PRINT, IF, EXPRESION, IFELSE, WHILE, FOR, STEP, DO, STMT_LST, PLUS,
+  MINUS, STAR, FORWARD_SLASH, LT, GT, EQ, LEQ, GEQ, INTEGER_NUMBER_VALUE, FLOATING_POINT_NUMBER_VALUE, ID_VALUE
+};
+
+char* SyntaxTreeNodeTypeName[] = { 
+  "PROGRAM", "STMT", "ASSIGN_STMT", "IF_STMT", "ITER_STMT", "CMP_STMT", 
+  "SET", "EXPR", "READ", "PRINT", "IF", "EXPRESION", "IFELSE", "WHILE", "FOR", "STEP", "DO", "STMT_LST", "PLUS",
+  "MINUS", "STAR", "FORWARD_SLASH", "LT", "GT", "EQ", "LEQ", "GEQ", "NUMBER_VALUE", "ID_VALUE"
+};
+
 %}
 
 /**
@@ -24,12 +38,17 @@
  * in the file interpreter.tab.h that must be included in the .flex file.
  */ 
 
+// Token declarations
 %token RES_WORD_PROGRAM IDENTIFIER SYMBOL_LT_BRACKET SYMBOL_RT_BRACKET SYMBOL_SEMICOLON RES_WORD_VAR SYMBOL_COLON 
 %token RES_WORD_INT RES_WORD_FLOAT INTEGER_NUMBER FLOATING_POINT_NUMBER RES_WORD_SET RES_WORD_READ RES_WORD_PRINT 
 %token RES_WORD_IF SYMBOL_LT_PARENTHESES SYMBOL_RT_PARENTHESES RES_WORD_IFELSE RES_WORD_WHILE RES_WORD_FOR RES_WORD_TO 
 %token RES_WORD_STEP RES_WORD_DO SYMBOL_PLUS SYMBOL_MINUS SYMBOL_STAR SYMBOL_FORWARD_SLASH SYMBOL_LT SYMBOL_GT SYMBOL_EQ 
 %token SYMBOL_LEQ SYMBOL_GEQ
+
+// Start token
 %start prog 
+
+// Types
 %type <tree> SYMBOL_SEMICOLON 
 %type <intVal> INTEGER_NUMBER
 %type <doubleVal> FLOATING_POINT_NUMBER
@@ -315,15 +334,65 @@ struct SyntaxTreeNode {
 
   // This attribute represents the data type stored by this node.
   int type;
-  char *name;
+  int parentNodeType;
   struct SyntaxTreeNode *arrPtr[4];
   union {
-
     int intVal; /* Integer value */
     double doubleVal; /* Floating-point value */
+    char *idName; /* Identifier name */
   } value;
-  struct SymbolTableNode *next;
+  struct SyntaxTreeNode *next;
 };
+
+/**
+ * Function for creating a node in the syntax tree.
+ * 
+ * @param iVal the value of the node in case it represents an integer number
+ * @param dVal the value of the node in case it represents an floating-point number
+ * @param idName the value of the node in case it represents an identifier
+ * @param type the type of the node, an entry of the SyntaxTreeNodeType enum.
+ * @param parentNodeType the type of the parent node, an entry of the SyntaxTreeNodeType enum.
+ * @param ptr1 a pointer to the 1st child node.
+ * @param ptr2 a pointer to the 2nd child node.
+ * @param ptr3 a pointer to the 3rd child node.
+ * @param ptr4 a pointer to the 4th child node.
+ * @param nextNode a pointer to the next node.
+ * @return A pointer to the node just created.
+ */ 
+struct SyntaxTreeNode* createNode(int iVal, double dVal, char* idName,
+  int type, int parentNodeType,
+  struct SyntaxTreeNode* ptr1, struct SyntaxTreeNode* ptr2, 
+  struct SyntaxTreeNode* ptr3, struct SyntaxTreeNode* ptr4, struct SyntaxTreeNode* nextNode){
+
+    struct SyntaxTreeNode* newNodePtr = (struct SyntaxTreeNode*) malloc(sizeof(struct SyntaxTreeNode));
+    newNodePtr->type = type;
+    newNodePtr->parentNodeType = parentNodeType;
+
+    newNodePtr->arrPtr[0] = ptr1;
+    newNodePtr->arrPtr[1] = ptr2;
+    newNodePtr->arrPtr[2] = ptr3;
+    newNodePtr->arrPtr[3] = ptr4;
+
+    newNodePtr->next = nextNode;
+
+    // Assign the values. They could be equal to NOTHING.
+    if(type == INTEGER_NUMBER_VALUE){
+
+      newNodePtr->value.intVal = iVal;
+    }
+    else if(type == FLOATING_POINT_NUMBER_VALUE){
+
+      newNodePtr->value.doubleVal = dVal;
+    }
+    else if(type == ID_VALUE){
+
+      // Malloc for the identifier's name
+      newNodePtr->value.idName = (char *) malloc(strlen(idName) + 1);
+      strcpy (newNodePtr->value.idName, idName);
+    }
+
+    return newNodePtr;
+}
 
 int yyerror(char const * s) {
   fprintf(stderr, "Error: %s\n", s);
