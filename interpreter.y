@@ -18,6 +18,8 @@
 #include <stdlib.h> /* malloc. */
 #include <string.h> /* strlen. */
 
+#define NOTHING -99999
+
 // Enum for identifying the parent node of each node in the syntax tree
 enum SyntaxTreeNodeType { 
   PROGRAM, STMT, ASSIGN_STMT, IF_STMT, ITER_STMT, CMP_STMT, 
@@ -31,6 +33,14 @@ char* SyntaxTreeNodeTypeName[] = {
   "MINUS", "STAR", "FORWARD_SLASH", "LT", "GT", "EQ", "LEQ", "GEQ", "NUMBER_VALUE", "ID_VALUE"
 };
 
+// Declaration of the createNode function.
+struct SyntaxTreeNode* createNode(int, double, char*,
+  int, int,
+  struct SyntaxTreeNode*, struct SyntaxTreeNode*, 
+  struct SyntaxTreeNode*, struct SyntaxTreeNode*, struct SyntaxTreeNode*);
+
+// Declaration of the printTree function.
+void printTree(struct SyntaxTreeNode*);
 %}
 
 /**
@@ -56,6 +66,7 @@ char* SyntaxTreeNodeTypeName[] = {
 %token SYMBOL_LEQ SYMBOL_GEQ
 
 // Types
+%type <treeVal> prog stmt assign_stmt if_stmt iter_stmt cmp_stmt stmt_lst SYMBOL_LT_BRACKET SYMBOL_RT_BRACKET 
 %type <treeVal> RES_WORD_PROGRAM RES_WORD_VAR RES_WORD_SET RES_WORD_READ RES_WORD_PRINT RES_WORD_IF RES_WORD_IFELSE 
 %type <treeVal> RES_WORD_WHILE RES_WORD_FOR RES_WORD_TO RES_WORD_STEP RES_WORD_DO SYMBOL_PLUS SYMBOL_MINUS SYMBOL_STAR 
 %type <treeVal> SYMBOL_FORWARD_SLASH SYMBOL_LT SYMBOL_GT SYMBOL_EQ SYMBOL_LEQ SYMBOL_GEQ
@@ -83,7 +94,12 @@ char* SyntaxTreeNodeTypeName[] = {
 //      | factor                         { $$ = $1; } 
 // ;
 
-prog : RES_WORD_PROGRAM IDENTIFIER SYMBOL_LT_BRACKET opt_decls SYMBOL_RT_BRACKET stmt
+prog : RES_WORD_PROGRAM IDENTIFIER SYMBOL_LT_BRACKET opt_decls SYMBOL_RT_BRACKET stmt 
+      {
+        struct SyntaxTreeNode* syntaxTreeRoot;
+        syntaxTreeRoot = createNode(NOTHING, NOTHING, NULL, PROGRAM, NOTHING, $6, NULL, NULL, NULL, NULL);
+        printTree(syntaxTreeRoot);
+      }
 ;
 
 opt_decls : decls
@@ -401,6 +417,20 @@ struct SyntaxTreeNode* createNode(int iVal, double dVal, char* idName,
     }
 
     return newNodePtr;
+}
+
+void printTree(struct SyntaxTreeNode* node){
+
+  if(node == NULL)
+    return;
+
+  printf("type: %d\n", node->type);
+  printf("parentNodeType: %d\n", node->parentNodeType);
+
+  for(int i = 0; i < 4; i++)
+    printf("ptr #%d: %p\n", i + 1, node->arrPtr[i]);
+
+  printf("\n");
 }
 
 int yyerror(char const * s) {
