@@ -38,6 +38,16 @@ char* SyntaxTreeNodeTypeName[] = {
  * in the file interpreter.tab.h that must be included in the .flex file.
  */ 
 
+// Start token
+%start prog 
+
+%union {
+
+  int intVal;
+  double doubleVal;
+  struct SyntaxTreeNode* treeVal;
+}
+
 // Token declarations
 %token RES_WORD_PROGRAM IDENTIFIER SYMBOL_LT_BRACKET SYMBOL_RT_BRACKET SYMBOL_SEMICOLON RES_WORD_VAR SYMBOL_COLON 
 %token RES_WORD_INT RES_WORD_FLOAT INTEGER_NUMBER FLOATING_POINT_NUMBER RES_WORD_SET RES_WORD_READ RES_WORD_PRINT 
@@ -45,11 +55,10 @@ char* SyntaxTreeNodeTypeName[] = {
 %token RES_WORD_STEP RES_WORD_DO SYMBOL_PLUS SYMBOL_MINUS SYMBOL_STAR SYMBOL_FORWARD_SLASH SYMBOL_LT SYMBOL_GT SYMBOL_EQ 
 %token SYMBOL_LEQ SYMBOL_GEQ
 
-// Start token
-%start prog 
-
 // Types
-%type <tree> SYMBOL_SEMICOLON 
+%type <treeVal> RES_WORD_PROGRAM RES_WORD_VAR RES_WORD_SET RES_WORD_READ RES_WORD_PRINT RES_WORD_IF RES_WORD_IFELSE 
+%type <treeVal> RES_WORD_WHILE RES_WORD_FOR RES_WORD_TO RES_WORD_STEP RES_WORD_DO SYMBOL_PLUS SYMBOL_MINUS SYMBOL_STAR 
+%type <treeVal> SYMBOL_FORWARD_SLASH SYMBOL_LT SYMBOL_GT SYMBOL_EQ SYMBOL_LEQ SYMBOL_GEQ
 %type <intVal> INTEGER_NUMBER
 %type <doubleVal> FLOATING_POINT_NUMBER
 
