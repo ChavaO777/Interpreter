@@ -3,5 +3,6 @@ program uno
     
 }
 {   
-    print 1;
+    print 16;
+    print 18;
 }

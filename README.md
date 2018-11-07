@@ -12,7 +12,7 @@ Interpreter project for the Compiler Design class
 
 **E.g.**
 
-- flex calculadora.lex
-- bison -d calculadora.y
-- gcc lex.yy.c calculadora.tab.c -ll
+- flex interpreter.lex
+- bison -d interpreter.y
+- gcc lex.yy.c interpreter.tab.c -ll
 - ./a.out

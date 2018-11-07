@@ -23,14 +23,14 @@
 // Enum for identifying the parent node of each node in the syntax tree
 enum SyntaxTreeNodeType { 
   PROGRAM, STMT, ASSIGN_STMT, IF_STMT, ITER_STMT, CMP_STMT, 
-  SET, EXPR, READ, PRINT, IF, EXPRESION, IFELSE, WHILE, FOR, STEP, DO, STMT_LST, PLUS,
+  SET, EXPR, TERM, FACTOR, READ, PRINT, IF, EXPRESION, IFELSE, WHILE, FOR, STEP, DO, STMT_LST, PLUS,
   MINUS, STAR, FORWARD_SLASH, LT, GT, EQ, LEQ, GEQ, INTEGER_NUMBER_VALUE, FLOATING_POINT_NUMBER_VALUE, ID_VALUE
 };
 
 char* SyntaxTreeNodeTypeName[] = { 
   "PROGRAM", "STMT", "ASSIGN_STMT", "IF_STMT", "ITER_STMT", "CMP_STMT", 
-  "SET", "EXPR", "READ", "PRINT", "IF", "EXPRESION", "IFELSE", "WHILE", "FOR", "STEP", "DO", "STMT_LST", "PLUS",
-  "MINUS", "STAR", "FORWARD_SLASH", "LT", "GT", "EQ", "LEQ", "GEQ", "NUMBER_VALUE", "ID_VALUE"
+  "SET", "EXPR", "TERM", "FACTOR", "READ", "PRINT", "IF", "EXPRESION", "IFELSE", "WHILE", "FOR", "STEP", "DO", "STMT_LST", "PLUS",
+  "MINUS", "STAR", "FORWARD_SLASH", "LT", "GT", "EQ", "LEQ", "GEQ", "INTEGER_NUMBER_VALUE", "FLOATING_POINT_NUMBER_VALUE", "ID_VALUE"
 };
 
 // Declaration of the createNode function.
@@ -67,12 +67,13 @@ struct SyntaxTreeNode* next;
 %token SYMBOL_LEQ SYMBOL_GEQ
 
 // Types
-%type <treeVal> prog stmt assign_stmt if_stmt iter_stmt cmp_stmt stmt_lst SYMBOL_LT_BRACKET SYMBOL_RT_BRACKET 
+%type <treeVal> prog stmt assign_stmt if_stmt iter_stmt cmp_stmt stmt_lst expr term factor SYMBOL_LT_BRACKET SYMBOL_RT_BRACKET 
 %type <treeVal> RES_WORD_PROGRAM RES_WORD_VAR RES_WORD_SET RES_WORD_READ RES_WORD_PRINT RES_WORD_IF RES_WORD_IFELSE 
 %type <treeVal> RES_WORD_WHILE RES_WORD_FOR RES_WORD_TO RES_WORD_STEP RES_WORD_DO SYMBOL_PLUS SYMBOL_MINUS SYMBOL_STAR 
-%type <treeVal> SYMBOL_FORWARD_SLASH SYMBOL_LT SYMBOL_GT SYMBOL_EQ SYMBOL_LEQ SYMBOL_GEQ
-%type <intVal> INTEGER_NUMBER
-%type <doubleVal> FLOATING_POINT_NUMBER
+%type <treeVal> SYMBOL_FORWARD_SLASH SYMBOL_LT SYMBOL_GT SYMBOL_EQ SYMBOL_LEQ SYMBOL_GEQ INTEGER_NUMBER FLOATING_POINT_NUMBER IDENTIFIER
+%type <treeVal> SYMBOL_LT_PARENTHESES SYMBOL_RT_PARENTHESES
+//%type <intVal> INTEGER_NUMBER
+//%type <doubleVal> FLOATING_POINT_NUMBER
 
 %%
 
@@ -100,7 +101,7 @@ prog : RES_WORD_PROGRAM IDENTIFIER SYMBOL_LT_BRACKET opt_decls SYMBOL_RT_BRACKET
         struct SyntaxTreeNode* syntaxTreeRoot;
         syntaxTreeRoot = createNode(NOTHING, NOTHING, NULL, PROGRAM, NOTHING, next, NULL, NULL, NULL, NULL);
         printTree(syntaxTreeRoot);
-	printf("apuntador: %p\n",syntaxTreeRoot);
+	//printf("prog apuntador: %p\n",syntaxTreeRoot);
       }
 ;
 
@@ -122,8 +123,7 @@ tipo : RES_WORD_INT
 stmt : assign_stmt
 	{
 		$$ = createNode(NOTHING, NOTHING, NULL, STMT, PROGRAM, next, NULL, NULL, NULL, NULL);
-        	printTree($$);
-		printf("apuntador: %p\n",$$);
+		//printf("stmt apuntador: %p\n",$$);
 		next = $$;
 	}
      | if_stmt
@@ -135,7 +135,9 @@ assign_stmt : RES_WORD_SET IDENTIFIER expr SYMBOL_SEMICOLON
             | RES_WORD_READ IDENTIFIER SYMBOL_SEMICOLON
             | RES_WORD_PRINT expr SYMBOL_SEMICOLON
 		{
-			next = NULL;
+			$$ = createNode(NOTHING, NOTHING, SyntaxTreeNodeTypeName[PRINT], ASSIGN_STMT, STMT, next, NULL, NULL, NULL, NULL);
+			//printf("assign_stmt apuntador: %p\n",$$);
+			next = $$;
 		}
 ;
 
@@ -159,16 +161,34 @@ stmt_lst : stmt
 expr : expr SYMBOL_PLUS term 
      | expr SYMBOL_MINUS term
      | term
+	{
+		$$ = createNode(NOTHING, NOTHING, NULL, EXPR, ASSIGN_STMT, next, NULL, NULL, NULL, NULL);
+		//printf("expr apuntador: %p\n",$$);
+		next = $$;
+	}
 ;
 
 term : term SYMBOL_STAR factor
      | term SYMBOL_FORWARD_SLASH factor
      | factor
+	{
+		$$ = createNode(NOTHING, NOTHING, NULL, TERM, EXPR, next, NULL, NULL, NULL, NULL);
+		//printf("term apuntador: %p\n",$$);
+		next = $$;
+	}
 ;
 
 factor : SYMBOL_LT_PARENTHESES expr SYMBOL_RT_PARENTHESES
        | IDENTIFIER
        | INTEGER_NUMBER
+	{
+		//printf("$1 =%p\n",$1);
+		//printf("value of $1 = %d\n",(int)$1);
+		//$1 stores integer number as a ponter we should cast it before creating node.
+		$$ = createNode((int)$1, NOTHING, NULL, INTEGER_NUMBER_VALUE, TERM, next, NULL, NULL, NULL, NULL);
+		//printf("factor apuntador: %p\n",$$);
+		next = $$;
+	}
        | FLOATING_POINT_NUMBER
 ;
 
@@ -411,7 +431,7 @@ struct SyntaxTreeNode* createNode(int iVal, double dVal, char* idName,
 
     newNodePtr->next = nextNode;
 	
-    printf("%p\n",ptr1);
+    //printf("%p\n",ptr1);
     // Assign the values. They could be equal to NOTHING.
     if(type == INTEGER_NUMBER_VALUE){
 
@@ -455,6 +475,13 @@ void printTree(struct SyntaxTreeNode* node){
   int i = 0;
   for(i = 0; i < 4; i++)
     printf("ptr #%d: %p\n", i + 1, node->arrPtr[i]);
+
+  if(node->type == INTEGER_NUMBER_VALUE)
+    printf("Node value = %d\n",node->value.intVal);
+
+  for(i = 0; i < 4; i++)
+     printTree(node->arrPtr[i]);
+
 
   printf("\n");
 }
