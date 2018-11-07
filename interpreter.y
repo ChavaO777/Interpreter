@@ -479,11 +479,10 @@ void printTree(struct SyntaxTreeNode* node){
   if(node->type == INTEGER_NUMBER_VALUE)
     printf("Node value = %d\n",node->value.intVal);
 
+  printf("\n");
+
   for(i = 0; i < 4; i++)
      printTree(node->arrPtr[i]);
-
-
-  printf("\n");
 }
 
 int yyerror(char const * s) {
