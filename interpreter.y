@@ -41,6 +41,7 @@ struct SyntaxTreeNode* createNode(int, double, char*,
 
 // Declaration of the printTree function.
 void printTree(struct SyntaxTreeNode*);
+struct SyntaxTreeNode* next;
 %}
 
 /**
@@ -97,8 +98,9 @@ void printTree(struct SyntaxTreeNode*);
 prog : RES_WORD_PROGRAM IDENTIFIER SYMBOL_LT_BRACKET opt_decls SYMBOL_RT_BRACKET stmt 
       {
         struct SyntaxTreeNode* syntaxTreeRoot;
-        syntaxTreeRoot = createNode(NOTHING, NOTHING, NULL, PROGRAM, NOTHING, $6, NULL, NULL, NULL, NULL);
+        syntaxTreeRoot = createNode(NOTHING, NOTHING, NULL, PROGRAM, NOTHING, next, NULL, NULL, NULL, NULL);
         printTree(syntaxTreeRoot);
+	printf("apuntador: %p\n",syntaxTreeRoot);
       }
 ;
 
@@ -118,6 +120,12 @@ tipo : RES_WORD_INT
 ;
 
 stmt : assign_stmt
+	{
+		$$ = createNode(NOTHING, NOTHING, NULL, STMT, PROGRAM, next, NULL, NULL, NULL, NULL);
+        	printTree($$);
+		printf("apuntador: %p\n",$$);
+		next = $$;
+	}
      | if_stmt
      | iter_stmt
      | cmp_stmt
@@ -126,6 +134,9 @@ stmt : assign_stmt
 assign_stmt : RES_WORD_SET IDENTIFIER expr SYMBOL_SEMICOLON
             | RES_WORD_READ IDENTIFIER SYMBOL_SEMICOLON
             | RES_WORD_PRINT expr SYMBOL_SEMICOLON
+		{
+			next = NULL;
+		}
 ;
 
 if_stmt : RES_WORD_IF SYMBOL_LT_PARENTHESES expresion SYMBOL_RT_PARENTHESES stmt
@@ -399,7 +410,8 @@ struct SyntaxTreeNode* createNode(int iVal, double dVal, char* idName,
     newNodePtr->arrPtr[3] = ptr4;
 
     newNodePtr->next = nextNode;
-
+	
+    printf("%p\n",ptr1);
     // Assign the values. They could be equal to NOTHING.
     if(type == INTEGER_NUMBER_VALUE){
 
@@ -440,8 +452,8 @@ void printTree(struct SyntaxTreeNode* node){
 
   printNodeType(node->type, "type");
   printNodeType(node->parentNodeType, "parentNodeType");
-
-  for(int i = 0; i < 4; i++)
+  int i = 0;
+  for(i = 0; i < 4; i++)
     printf("ptr #%d: %p\n", i + 1, node->arrPtr[i]);
 
   printf("\n");
