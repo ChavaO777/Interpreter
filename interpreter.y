@@ -172,6 +172,7 @@ void printTree(struct SyntaxTreeNode*);
 %type <treeVal> expr
 %type <treeVal> term
 %type <treeVal> factor
+%type <treeVal> expresion
 %type <treeVal> SYMBOL_LT_BRACKET
 %type <treeVal> SYMBOL_RT_BRACKET 
 %type <treeVal> RES_WORD_PROGRAM
@@ -232,7 +233,7 @@ prog : RES_WORD_PROGRAM IDENTIFIER SYMBOL_LT_BRACKET opt_decls SYMBOL_RT_BRACKET
       }
 ;
 
-// ########### Rules for DECLARATIONS OF VARIABLES ###########
+// ########### START of the rules for DECLARATIONS OF VARIABLES ###########
 // Declarations are not part of the syntax tree node
 opt_decls : decls
           | /* epsilon */
@@ -248,6 +249,8 @@ dec : RES_WORD_VAR IDENTIFIER SYMBOL_COLON tipo
 tipo : RES_WORD_INT
      | RES_WORD_FLOAT
 ;
+
+// ########### END of the rules for DECLARATIONS OF VARIABLES ###########
 
 stmt : assign_stmt { $$ = $1; }
      | if_stmt { $$ = $1; }
@@ -273,7 +276,13 @@ assign_stmt : RES_WORD_SET IDENTIFIER expr SYMBOL_SEMICOLON
 ;
 
 if_stmt : RES_WORD_IF SYMBOL_LT_PARENTHESES expresion SYMBOL_RT_PARENTHESES stmt
+        {
+          $$ = createNode(NOTHING, NOTHING, NULL, IF, IF_STMT, $3, $5, NULL, NULL, NULL);
+        }
         | RES_WORD_IFELSE SYMBOL_LT_PARENTHESES expresion SYMBOL_RT_PARENTHESES stmt stmt
+        {
+          $$ = createNode(NOTHING, NOTHING, NULL, IFELSE, IF_STMT, $3, $5, $6, NULL, NULL);
+        }
 ;
 
 iter_stmt : RES_WORD_WHILE SYMBOL_LT_PARENTHESES expresion SYMBOL_RT_PARENTHESES stmt
@@ -281,14 +290,17 @@ iter_stmt : RES_WORD_WHILE SYMBOL_LT_PARENTHESES expresion SYMBOL_RT_PARENTHESES
 ;
 
 cmp_stmt : SYMBOL_LT_BRACKET SYMBOL_RT_BRACKET
+          {
+            $$ = NULL;
+          }
          | SYMBOL_LT_BRACKET stmt_lst SYMBOL_RT_BRACKET { $$ = $2; }
 ;
 
 stmt_lst : stmt { $$ = $1;}
          | stmt_lst stmt 
-		{
-			$$ = createNode(NOTHING, NOTHING, NULL, STMT_LST, STMT_LST, $1, $2, NULL, NULL, NULL);
-		}
+        {
+          $$ = createNode(NOTHING, NOTHING, NULL, STMT_LST, STMT_LST, $1, $2, NULL, NULL, NULL);
+        }
 ;
 
 // {$$ = createNode(SYMBOL_PLUS, $1, $3); }
@@ -317,10 +329,25 @@ factor : SYMBOL_LT_PARENTHESES expr SYMBOL_RT_PARENTHESES
 ;
 
 expresion : expr SYMBOL_LT expr
+          {
+            $$ = createNode(NOTHING, NOTHING, NULL, LT, EXPRESION, $1, $3, NULL, NULL, NULL);
+          }
           | expr SYMBOL_GT expr
+          {
+            $$ = createNode(NOTHING, NOTHING, NULL, GT, EXPRESION, $1, $3, NULL, NULL, NULL);
+          }
           | expr SYMBOL_EQ expr
+          {
+            $$ = createNode(NOTHING, NOTHING, NULL, EQ, EXPRESION, $1, $3, NULL, NULL, NULL);
+          }
           | expr SYMBOL_LEQ expr
+          {
+            $$ = createNode(NOTHING, NOTHING, NULL, LEQ, EXPRESION, $1, $3, NULL, NULL, NULL);
+          }
           | expr SYMBOL_GEQ expr
+          {
+            $$ = createNode(NOTHING, NOTHING, NULL, GEQ, EXPRESION, $1, $3, NULL, NULL, NULL);
+          }
 ;
 
 %%
