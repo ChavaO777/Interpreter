@@ -95,13 +95,21 @@ char* SyntaxTreeNodeTypeName[] = {
 };
 
 // Declaration of the createNode function.
-struct SyntaxTreeNode* createNode(int, double, char*,
-  int, int,
-  struct SyntaxTreeNode*, struct SyntaxTreeNode*, 
-  struct SyntaxTreeNode*, struct SyntaxTreeNode*, struct SyntaxTreeNode*);
+struct SyntaxTreeNode* createNode(
+  int, 
+  double, 
+  char*,
+  int, 
+  int,
+  struct SyntaxTreeNode*, 
+  struct SyntaxTreeNode*, 
+  struct SyntaxTreeNode*, 
+  struct SyntaxTreeNode*, 
+  struct SyntaxTreeNode*);
 
 // Declaration of the printTree function.
 void printTree(struct SyntaxTreeNode*);
+
 struct SyntaxTreeNode* next;
 %}
 
@@ -115,8 +123,8 @@ struct SyntaxTreeNode* next;
 
 %union {
 
-  int intVal;
-  double doubleVal;
+  // int intVal;
+  // double doubleVal;
   struct SyntaxTreeNode* treeVal;
 }
 
@@ -219,7 +227,7 @@ struct SyntaxTreeNode* next;
 prog : RES_WORD_PROGRAM IDENTIFIER SYMBOL_LT_BRACKET opt_decls SYMBOL_RT_BRACKET stmt 
       {
         struct SyntaxTreeNode* syntaxTreeRoot;
-        syntaxTreeRoot = createNode(NOTHING, NOTHING, NULL, PROGRAM, NOTHING, next, NULL, NULL, NULL, NULL);
+        syntaxTreeRoot = createNode(NOTHING, NOTHING, NULL, PROGRAM, NOTHING, $6, NULL, NULL, NULL, NULL);
         printTree(syntaxTreeRoot);
 	//printf("prog apuntador: %p\n",syntaxTreeRoot);
       }
@@ -242,9 +250,9 @@ tipo : RES_WORD_INT
 
 stmt : assign_stmt
 	{
-		$$ = createNode(NOTHING, NOTHING, NULL, STMT, PROGRAM, next, NULL, NULL, NULL, NULL);
-		//printf("stmt apuntador: %p\n",$$);
-		next = $$;
+		$$ = createNode(NOTHING, NOTHING, NULL, STMT, PROGRAM, $1, NULL, NULL, NULL, NULL);
+		printf("stmt apuntador: %p\n",$$);
+		// next = $$;
 	}
      | if_stmt
      | iter_stmt
@@ -255,9 +263,9 @@ assign_stmt : RES_WORD_SET IDENTIFIER expr SYMBOL_SEMICOLON
             | RES_WORD_READ IDENTIFIER SYMBOL_SEMICOLON
             | RES_WORD_PRINT expr SYMBOL_SEMICOLON
 		{
-			$$ = createNode(NOTHING, NOTHING, NULL, PRINT, STMT, next, NULL, NULL, NULL, NULL);
+			$$ = createNode(NOTHING, NOTHING, NULL, PRINT, STMT, $2, NULL, NULL, NULL, NULL);
 			//printf("assign_stmt apuntador: %p\n",$$);
-			next = $$;
+			// next = $$;
 		}
 ;
 
@@ -282,9 +290,9 @@ expr : expr SYMBOL_PLUS term
      | expr SYMBOL_MINUS term
      | term
 	{
-		$$ = createNode(NOTHING, NOTHING, NULL, EXPR, ASSIGN_STMT, next, NULL, NULL, NULL, NULL);
+		$$ = createNode(NOTHING, NOTHING, NULL, EXPR, ASSIGN_STMT, $1, NULL, NULL, NULL, NULL);
 		//printf("expr apuntador: %p\n",$$);
-		next = $$;
+		// next = $$;
 	}
 ;
 
@@ -292,9 +300,9 @@ term : term SYMBOL_STAR factor
      | term SYMBOL_FORWARD_SLASH factor
      | factor
 	{
-		$$ = createNode(NOTHING, NOTHING, NULL, TERM, EXPR, next, NULL, NULL, NULL, NULL);
+		$$ = createNode(NOTHING, NOTHING, NULL, TERM, EXPR, $1, NULL, NULL, NULL, NULL);
 		//printf("term apuntador: %p\n",$$);
-		next = $$;
+		// next = $$;
 	}
 ;
 
@@ -305,9 +313,9 @@ factor : SYMBOL_LT_PARENTHESES expr SYMBOL_RT_PARENTHESES
 		//printf("$1 =%p\n",$1);
 		//printf("value of $1 = %d\n",(int)$1);
 		//$1 stores integer number as a ponter we should cast it before creating node.
-		$$ = createNode((int)$1, NOTHING, NULL, INTEGER_NUMBER_VALUE, TERM, next, NULL, NULL, NULL, NULL);
+		$$ = createNode((int)$1, NOTHING, NULL, INTEGER_NUMBER_VALUE, TERM, $1, NULL, NULL, NULL, NULL);
 		//printf("factor apuntador: %p\n",$$);
-		next = $$;
+		// next = $$;
 	}
        | FLOATING_POINT_NUMBER
 ;
@@ -590,7 +598,7 @@ void printTree(struct SyntaxTreeNode* node){
     return;
 
   printNodeType(node->type, "type");
-  printf("Address = %p\n", node);
+  printf("address = %p\n", node);
   printNodeType(node->parentNodeType, "parentNodeType");
   int i = 0;
   for(i = 0; i < 4; i++)
