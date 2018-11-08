@@ -471,6 +471,7 @@ void printTree(struct SyntaxTreeNode* node){
 
 
   printNodeType(node->type, "type");
+  printf("Address = %p\n", node);
   printNodeType(node->parentNodeType, "parentNodeType");
   int i = 0;
   for(i = 0; i < 4; i++)
