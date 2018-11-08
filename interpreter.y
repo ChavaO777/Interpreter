@@ -287,18 +287,15 @@ iter_stmt : RES_WORD_WHILE SYMBOL_LT_PARENTHESES expresion SYMBOL_RT_PARENTHESES
           | RES_WORD_FOR RES_WORD_SET IDENTIFIER expr RES_WORD_TO expr RES_WORD_STEP expr RES_WORD_DO stmt
 ;
 
-cmp_stmt : SYMBOL_LT_BRACKET SYMBOL_RT_BRACKET
-          {
-            $$ = NULL;
-          }
+cmp_stmt : SYMBOL_LT_BRACKET SYMBOL_RT_BRACKET { $$ = NULL; }
          | SYMBOL_LT_BRACKET stmt_lst SYMBOL_RT_BRACKET { $$ = $2; }
 ;
 
 stmt_lst : stmt { $$ = $1;}
          | stmt_lst stmt 
-        {
-          $$ = createNode(NOTHING, NOTHING, NULL, STMT_LST, STMT_LST, $1, $2, NULL, NULL, NULL);
-        }
+         {
+            $$ = createNode(NOTHING, NOTHING, NULL, STMT_LST, STMT_LST, $1, $2, NULL, NULL, NULL);
+         }
 ;
 
 expr : expr SYMBOL_PLUS term 
@@ -332,12 +329,12 @@ factor : SYMBOL_LT_PARENTHESES expr SYMBOL_RT_PARENTHESES
           $$ = createNode(NOTHING, NOTHING, (char *)$1, ID_VALUE, FACTOR, NULL, NULL, NULL, NULL, NULL);
        }
        | INTEGER_NUMBER
-        {
+       {
           //printf("$1 =%p\n",$1);
           //printf("value of $1 = %d\n",(int)$1);
           //$1 stores integer number as a ponter we should cast it before creating node.
           $$ = createNode((int)$1, NOTHING, NULL, INTEGER_NUMBER_VALUE, TERM, NULL, NULL, NULL, NULL, NULL);
-        }
+       }
        | FLOATING_POINT_NUMBER
 ;
 
