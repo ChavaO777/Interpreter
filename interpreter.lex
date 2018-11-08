@@ -62,7 +62,7 @@ float                                                   { return RES_WORD_FLOAT;
 "+"                                                     { return SYMBOL_PLUS; }
 "-"                                                     { return SYMBOL_MINUS; }
 "*"                                                     { return SYMBOL_STAR; }
-"/"                                                     { return SYMBOL_FORWARD_SLASH; }
+"\/"                                                     { return SYMBOL_FORWARD_SLASH; }
 "("                                                     { return SYMBOL_LT_PARENTHESES; }
 ")"                                                     { return SYMBOL_RT_PARENTHESES; }
 "{"                                                     { return SYMBOL_LT_BRACKET; }

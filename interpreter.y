@@ -229,7 +229,6 @@ prog : RES_WORD_PROGRAM IDENTIFIER SYMBOL_LT_BRACKET opt_decls SYMBOL_RT_BRACKET
         struct SyntaxTreeNode* syntaxTreeRoot;
         syntaxTreeRoot = createNode(NOTHING, NOTHING, NULL, PROGRAM, NOTHING, $6, NULL, NULL, NULL, NULL);
         printTree(syntaxTreeRoot);
-	//printf("prog apuntador: %p\n",syntaxTreeRoot);
       }
 ;
 
@@ -271,7 +270,6 @@ assign_stmt : RES_WORD_SET IDENTIFIER expr SYMBOL_SEMICOLON
             | RES_WORD_PRINT expr SYMBOL_SEMICOLON
             {
               $$ = createNode(NOTHING, NOTHING, NULL, PRINT, STMT, $2, NULL, NULL, NULL, NULL);
-              //printf("assign_stmt apuntador: %p\n",$$);
             }
 ;
 
@@ -303,7 +301,6 @@ stmt_lst : stmt { $$ = $1;}
         }
 ;
 
-// {$$ = createNode(SYMBOL_PLUS, $1, $3); }
 expr : expr SYMBOL_PLUS term 
      {
         $$ = createNode(NOTHING, NOTHING, NULL, PLUS, EXPR, $1, $3, NULL, NULL, NULL);
@@ -324,7 +321,6 @@ term : term SYMBOL_STAR factor
         $$ = createNode(NOTHING, NOTHING, NULL, FORWARD_SLASH, EXPR, $1, $3, NULL, NULL, NULL);
      }
      | factor { $$ = $1; }
-
 ;
 
 factor : SYMBOL_LT_PARENTHESES expr SYMBOL_RT_PARENTHESES
@@ -335,7 +331,6 @@ factor : SYMBOL_LT_PARENTHESES expr SYMBOL_RT_PARENTHESES
 		//printf("value of $1 = %d\n",(int)$1);
 		//$1 stores integer number as a ponter we should cast it before creating node.
 		$$ = createNode((int)$1, NOTHING, NULL, INTEGER_NUMBER_VALUE, TERM, NULL, NULL, NULL, NULL, NULL);
-		//printf("factor apuntador: %p de %d\n",$$,(int)$1);
 	}
        | FLOATING_POINT_NUMBER
 ;
