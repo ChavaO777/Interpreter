@@ -70,7 +70,7 @@ float                                                   { return RES_WORD_FLOAT;
 
 {DIGIT}*                                                { yylval.intVal = atoi(yytext); return INTEGER_NUMBER; /* Convert the number to INTEGER_NUMBER */}
 
-("-")?(({DIGITWZ}{DIGIT}*|"0")"."({DIGIT}*{DIGIT}))     { return FLOATING_POINT_NUMBER; } /* Floating-point numbers */
+("-")?(({DIGITWZ}{DIGIT}*|"0")"."({DIGIT}*{DIGIT}))     { yyval.idName = yytext; return FLOATING_POINT_NUMBER; } /* Floating-point numbers */
 
 ("$"|{LETTER}|"_")("$"|{LETTER}|"_"|{DIGIT})*           { return IDENTIFIER; } /* Identifiers */
 

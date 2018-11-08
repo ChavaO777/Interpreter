@@ -123,6 +123,7 @@ void printTree(struct SyntaxTreeNode*);
 
   int intVal;
   double doubleVal;
+  char* idName;
   struct SyntaxTreeNode* treeVal;
 }
 
