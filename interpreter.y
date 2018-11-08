@@ -20,7 +20,8 @@
 
 #define NOTHING -99999
 
-// Enum for identifying the parent node of each node in the syntax tree
+// Enum for identifying the parent node of each node in the syntax tree.
+// This enum must be in sync with the SyntaxTreeNodeTypeName array.
 enum SyntaxTreeNodeType { 
   PROGRAM, 
   STMT, 
@@ -56,6 +57,8 @@ enum SyntaxTreeNodeType {
   ID_VALUE
 };
 
+// Array of the names of the syntax tree node types.
+// This array must be in sync with the SyntaxTreeNodeType enum.
 char* SyntaxTreeNodeTypeName[] = { 
   "PROGRAM", 
   "STMT", 
@@ -118,21 +121,80 @@ struct SyntaxTreeNode* next;
 }
 
 // Token declarations
-%token RES_WORD_PROGRAM IDENTIFIER SYMBOL_LT_BRACKET SYMBOL_RT_BRACKET SYMBOL_SEMICOLON RES_WORD_VAR SYMBOL_COLON 
-%token RES_WORD_INT RES_WORD_FLOAT INTEGER_NUMBER FLOATING_POINT_NUMBER RES_WORD_SET RES_WORD_READ RES_WORD_PRINT 
-%token RES_WORD_IF SYMBOL_LT_PARENTHESES SYMBOL_RT_PARENTHESES RES_WORD_IFELSE RES_WORD_WHILE RES_WORD_FOR RES_WORD_TO 
-%token RES_WORD_STEP RES_WORD_DO SYMBOL_PLUS SYMBOL_MINUS SYMBOL_STAR SYMBOL_FORWARD_SLASH SYMBOL_LT SYMBOL_GT SYMBOL_EQ 
-%token SYMBOL_LEQ SYMBOL_GEQ
+%token RES_WORD_PROGRAM
+%token IDENTIFIER
+%token SYMBOL_LT_BRACKET
+%token SYMBOL_RT_BRACKET
+%token SYMBOL_SEMICOLON
+%token RES_WORD_VAR
+%token SYMBOL_COLON 
+%token RES_WORD_INT
+%token RES_WORD_FLOAT
+%token INTEGER_NUMBER
+%token FLOATING_POINT_NUMBER
+%token RES_WORD_SET
+%token RES_WORD_READ
+%token RES_WORD_PRINT 
+%token RES_WORD_IF
+%token SYMBOL_LT_PARENTHESES
+%token SYMBOL_RT_PARENTHESES
+%token RES_WORD_IFELSE
+%token RES_WORD_WHILE
+%token RES_WORD_FOR
+%token RES_WORD_TO 
+%token RES_WORD_STEP
+%token RES_WORD_DO
+%token SYMBOL_PLUS
+%token SYMBOL_MINUS
+%token SYMBOL_STAR
+%token SYMBOL_FORWARD_SLASH
+%token SYMBOL_LT
+%token SYMBOL_GT
+%token SYMBOL_EQ 
+%token SYMBOL_LEQ
+%token SYMBOL_GEQ
 
 // Types
-%type <treeVal> prog stmt assign_stmt if_stmt iter_stmt cmp_stmt stmt_lst expr term factor SYMBOL_LT_BRACKET SYMBOL_RT_BRACKET 
-%type <treeVal> RES_WORD_PROGRAM RES_WORD_VAR RES_WORD_SET RES_WORD_READ RES_WORD_PRINT RES_WORD_IF RES_WORD_IFELSE 
-%type <treeVal> RES_WORD_WHILE RES_WORD_FOR RES_WORD_TO RES_WORD_STEP RES_WORD_DO SYMBOL_PLUS SYMBOL_MINUS SYMBOL_STAR 
-%type <treeVal> SYMBOL_FORWARD_SLASH SYMBOL_LT SYMBOL_GT SYMBOL_EQ SYMBOL_LEQ SYMBOL_GEQ INTEGER_NUMBER FLOATING_POINT_NUMBER IDENTIFIER
-%type <treeVal> SYMBOL_LT_PARENTHESES SYMBOL_RT_PARENTHESES
+%type <treeVal> prog
+%type <treeVal> stmt
+%type <treeVal> assign_stmt
+%type <treeVal> if_stmt
+%type <treeVal> iter_stmt
+%type <treeVal> cmp_stmt
+%type <treeVal> stmt_lst
+%type <treeVal> expr
+%type <treeVal> term
+%type <treeVal> factor
+%type <treeVal> SYMBOL_LT_BRACKET
+%type <treeVal> SYMBOL_RT_BRACKET 
+%type <treeVal> RES_WORD_PROGRAM
+%type <treeVal> RES_WORD_VAR
+%type <treeVal> RES_WORD_SET
+%type <treeVal> RES_WORD_READ
+%type <treeVal> RES_WORD_PRINT
+%type <treeVal> RES_WORD_IF
+%type <treeVal> RES_WORD_IFELSE 
+%type <treeVal> RES_WORD_WHILE
+%type <treeVal> RES_WORD_FOR
+%type <treeVal> RES_WORD_TO
+%type <treeVal> RES_WORD_STEP
+%type <treeVal> RES_WORD_DO
+%type <treeVal> SYMBOL_PLUS
+%type <treeVal> SYMBOL_MINUS
+%type <treeVal> SYMBOL_STAR 
+%type <treeVal> SYMBOL_FORWARD_SLASH
+%type <treeVal> SYMBOL_LT
+%type <treeVal> SYMBOL_GT
+%type <treeVal> SYMBOL_EQ
+%type <treeVal> SYMBOL_LEQ
+%type <treeVal> SYMBOL_GEQ
+%type <treeVal> INTEGER_NUMBER
+%type <treeVal> FLOATING_POINT_NUMBER
+%type <treeVal> IDENTIFIER
+%type <treeVal> SYMBOL_LT_PARENTHESES
+%type <treeVal> SYMBOL_RT_PARENTHESES
 //%type <intVal> INTEGER_NUMBER
 //%type <doubleVal> FLOATING_POINT_NUMBER
-
 %%
 
 // exp : expr FINEXP    { printf("Valor: %d\n", $1); }
