@@ -254,6 +254,10 @@ stmt : assign_stmt { $$ = $1; }
 ;
 
 assign_stmt : RES_WORD_SET IDENTIFIER expr SYMBOL_SEMICOLON
+            {
+              struct SyntaxTreeNode* idNode = createNode(NOTHING, NOTHING, (char *)$2, ID_VALUE, READ, NULL, NULL, NULL, NULL, NULL);
+              $$ = createNode(NOTHING, NOTHING, NULL, SET, STMT, idNode, $3, NULL, NULL, NULL);
+            }
             | RES_WORD_READ IDENTIFIER SYMBOL_SEMICOLON
             {
               struct SyntaxTreeNode* idNode = createNode(NOTHING, NOTHING, (char *)$2, ID_VALUE, READ, NULL, NULL, NULL, NULL, NULL);
