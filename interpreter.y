@@ -95,10 +95,17 @@ char* SyntaxTreeNodeTypeName[] = {
 };
 
 // Declaration of the createNode function.
-struct SyntaxTreeNode* createNode(int, double, char*,
-  int, int,
-  struct SyntaxTreeNode*, struct SyntaxTreeNode*, 
-  struct SyntaxTreeNode*, struct SyntaxTreeNode*, struct SyntaxTreeNode*);
+struct SyntaxTreeNode* createNode(
+  int, 
+  double, 
+  char*,
+  int, 
+  int,
+  struct SyntaxTreeNode*, 
+  struct SyntaxTreeNode*, 
+  struct SyntaxTreeNode*, 
+  struct SyntaxTreeNode*, 
+  struct SyntaxTreeNode*);
 
 // Declaration of the printTree function.
 void printTree(struct SyntaxTreeNode*);
@@ -239,8 +246,7 @@ tipo : RES_WORD_INT
      | RES_WORD_FLOAT
 ;
 
-stmt : assign_stmt
-	{ $$ = $1; }
+stmt : assign_stmt { $$ = $1; }
      | if_stmt
      | iter_stmt
      | cmp_stmt { $$ = $1; }
@@ -282,8 +288,8 @@ expr : expr SYMBOL_PLUS term
 
 term : term SYMBOL_STAR factor
      | term SYMBOL_FORWARD_SLASH factor
-     | factor
-	{ $$ = $1; }
+     | factor { $$ = $1; }
+
 ;
 
 factor : SYMBOL_LT_PARENTHESES expr SYMBOL_RT_PARENTHESES
@@ -577,7 +583,7 @@ void printTree(struct SyntaxTreeNode* node){
     return;
 
   printNodeType(node->type, "type");
-  printf("Address = %p\n", node);
+  printf("address = %p\n", node);
   printNodeType(node->parentNodeType, "parentNodeType");
   int i = 0;
   for(i = 0; i < 4; i++)
