@@ -1,0 +1,10 @@
+program uno
+{
+    
+}
+{   
+    while (1 < 2)
+    {
+        print 2;
+    }
+}

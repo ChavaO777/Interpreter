@@ -284,6 +284,9 @@ if_stmt : RES_WORD_IF SYMBOL_LT_PARENTHESES expresion SYMBOL_RT_PARENTHESES stmt
 ;
 
 iter_stmt : RES_WORD_WHILE SYMBOL_LT_PARENTHESES expresion SYMBOL_RT_PARENTHESES stmt
+          {
+            $$ = createNode(NOTHING, NOTHING, NULL, WHILE, ITER_STMT, $3, $5, NULL, NULL, NULL);
+          }
           | RES_WORD_FOR RES_WORD_SET IDENTIFIER expr RES_WORD_TO expr RES_WORD_STEP expr RES_WORD_DO stmt
 ;
 
