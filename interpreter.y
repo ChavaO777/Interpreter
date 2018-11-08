@@ -325,13 +325,16 @@ term : term SYMBOL_STAR factor
 
 factor : SYMBOL_LT_PARENTHESES expr SYMBOL_RT_PARENTHESES
        | IDENTIFIER
+       {
+          $$ = createNode(NOTHING, NOTHING, (char *)$1, ID_VALUE, FACTOR, NULL, NULL, NULL, NULL, NULL);
+       }
        | INTEGER_NUMBER
-	{
-		//printf("$1 =%p\n",$1);
-		//printf("value of $1 = %d\n",(int)$1);
-		//$1 stores integer number as a ponter we should cast it before creating node.
-		$$ = createNode((int)$1, NOTHING, NULL, INTEGER_NUMBER_VALUE, TERM, NULL, NULL, NULL, NULL, NULL);
-	}
+        {
+          //printf("$1 =%p\n",$1);
+          //printf("value of $1 = %d\n",(int)$1);
+          //$1 stores integer number as a ponter we should cast it before creating node.
+          $$ = createNode((int)$1, NOTHING, NULL, INTEGER_NUMBER_VALUE, TERM, NULL, NULL, NULL, NULL, NULL);
+        }
        | FLOATING_POINT_NUMBER
 ;
 
