@@ -232,6 +232,8 @@ prog : RES_WORD_PROGRAM IDENTIFIER SYMBOL_LT_BRACKET opt_decls SYMBOL_RT_BRACKET
       }
 ;
 
+// ########### Rules for DECLARATIONS OF VARIABLES ###########
+// Declarations are not part of the syntax tree node
 opt_decls : decls
           | /* epsilon */
 ;
@@ -248,8 +250,8 @@ tipo : RES_WORD_INT
 ;
 
 stmt : assign_stmt { $$ = $1; }
-     | if_stmt
-     | iter_stmt
+     | if_stmt { $$ = $1; }
+     | iter_stmt { $$ = $1; }
      | cmp_stmt { $$ = $1; }
 ;
 
