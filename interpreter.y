@@ -324,6 +324,9 @@ term : term SYMBOL_STAR factor
 ;
 
 factor : SYMBOL_LT_PARENTHESES expr SYMBOL_RT_PARENTHESES
+       {
+          $$ = $2;
+       }
        | IDENTIFIER
        {
           $$ = createNode(NOTHING, NOTHING, (char *)$1, ID_VALUE, FACTOR, NULL, NULL, NULL, NULL, NULL);
