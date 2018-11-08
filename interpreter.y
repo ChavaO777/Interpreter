@@ -316,7 +316,13 @@ expr : expr SYMBOL_PLUS term
 ;
 
 term : term SYMBOL_STAR factor
+     {
+        $$ = createNode(NOTHING, NOTHING, NULL, STAR, EXPR, $1, $3, NULL, NULL, NULL);
+     }
      | term SYMBOL_FORWARD_SLASH factor
+     {
+        $$ = createNode(NOTHING, NOTHING, NULL, FORWARD_SLASH, EXPR, $1, $3, NULL, NULL, NULL);
+     }
      | factor { $$ = $1; }
 
 ;
