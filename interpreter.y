@@ -255,11 +255,15 @@ stmt : assign_stmt { $$ = $1; }
 
 assign_stmt : RES_WORD_SET IDENTIFIER expr SYMBOL_SEMICOLON
             | RES_WORD_READ IDENTIFIER SYMBOL_SEMICOLON
+            {
+              struct SyntaxTreeNode* idNode = createNode(NOTHING, NOTHING, (char *)$2, ID_VALUE, READ, NULL, NULL, NULL, NULL, NULL);
+              $$ = createNode(NOTHING, NOTHING, NULL, READ, STMT, idNode, NULL, NULL, NULL, NULL);              
+            }
             | RES_WORD_PRINT expr SYMBOL_SEMICOLON
-		{
-			$$ = createNode(NOTHING, NOTHING, NULL, PRINT, STMT, $2, NULL, NULL, NULL, NULL);
-			//printf("assign_stmt apuntador: %p\n",$$);
-		}
+            {
+              $$ = createNode(NOTHING, NOTHING, NULL, PRINT, STMT, $2, NULL, NULL, NULL, NULL);
+              //printf("assign_stmt apuntador: %p\n",$$);
+            }
 ;
 
 if_stmt : RES_WORD_IF SYMBOL_LT_PARENTHESES expresion SYMBOL_RT_PARENTHESES stmt
@@ -586,12 +590,18 @@ void printTree(struct SyntaxTreeNode* node){
   printNodeType(node->type, "type");
   printf("address = %p\n", node);
   printNodeType(node->parentNodeType, "parentNodeType");
-  int i = 0;
-  for(i = 0; i < 4; i++)
-    printf("ptr #%d: %p\n", i + 1, node->arrPtr[i]);
 
   if(node->type == INTEGER_NUMBER_VALUE)
     printf("Node value = %d\n",node->value.intVal);
+
+  else if(node->type == ID_VALUE){
+
+    printf("Node value = %s\n",node->value.idName);
+  }
+
+  int i = 0;
+  for(i = 0; i < 4; i++)
+    printf("ptr #%d: %p\n", i + 1, node->arrPtr[i]);
 
   printf("\n");
 
