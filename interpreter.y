@@ -305,7 +305,13 @@ stmt_lst : stmt { $$ = $1;}
 
 // {$$ = createNode(SYMBOL_PLUS, $1, $3); }
 expr : expr SYMBOL_PLUS term 
+     {
+        $$ = createNode(NOTHING, NOTHING, NULL, PLUS, EXPR, $1, $3, NULL, NULL, NULL);
+     }
      | expr SYMBOL_MINUS term
+     {
+        $$ = createNode(NOTHING, NOTHING, NULL, MINUS, EXPR, $1, $3, NULL, NULL, NULL);
+     }
      | term { $$ = $1; }
 ;
 
