@@ -22,15 +22,73 @@
 
 // Enum for identifying the parent node of each node in the syntax tree
 enum SyntaxTreeNodeType { 
-  PROGRAM, STMT, ASSIGN_STMT, IF_STMT, ITER_STMT, CMP_STMT, 
-  SET, EXPR, TERM, FACTOR, READ, PRINT, IF, EXPRESION, IFELSE, WHILE, FOR, STEP, DO, STMT_LST, PLUS,
-  MINUS, STAR, FORWARD_SLASH, LT, GT, EQ, LEQ, GEQ, INTEGER_NUMBER_VALUE, FLOATING_POINT_NUMBER_VALUE, ID_VALUE
+  PROGRAM, 
+  STMT, 
+  ASSIGN_STMT, 
+  IF_STMT, 
+  ITER_STMT, 
+  CMP_STMT, 
+  SET, 
+  EXPR, 
+  TERM, 
+  FACTOR, 
+  READ, 
+  PRINT, 
+  IF, 
+  EXPRESION, 
+  IFELSE, 
+  WHILE, 
+  FOR, 
+  STEP, 
+  DO, 
+  STMT_LST, 
+  PLUS,
+  MINUS, 
+  STAR, 
+  FORWARD_SLASH, 
+  LT, 
+  GT, 
+  EQ, 
+  LEQ, 
+  GEQ, 
+  INTEGER_NUMBER_VALUE, 
+  FLOATING_POINT_NUMBER_VALUE, 
+  ID_VALUE
 };
 
 char* SyntaxTreeNodeTypeName[] = { 
-  "PROGRAM", "STMT", "ASSIGN_STMT", "IF_STMT", "ITER_STMT", "CMP_STMT", 
-  "SET", "EXPR", "TERM", "FACTOR", "READ", "PRINT", "IF", "EXPRESION", "IFELSE", "WHILE", "FOR", "STEP", "DO", "STMT_LST", "PLUS",
-  "MINUS", "STAR", "FORWARD_SLASH", "LT", "GT", "EQ", "LEQ", "GEQ", "INTEGER_NUMBER_VALUE", "FLOATING_POINT_NUMBER_VALUE", "ID_VALUE"
+  "PROGRAM", 
+  "STMT", 
+  "ASSIGN_STMT", 
+  "IF_STMT", 
+  "ITER_STMT", 
+  "CMP_STMT", 
+  "SET", 
+  "EXPR", 
+  "TERM", 
+  "FACTOR", 
+  "READ", 
+  "PRINT", 
+  "IF", 
+  "EXPRESION", 
+  "IFELSE", 
+  "WHILE", 
+  "FOR", 
+  "STEP", 
+  "DO", 
+  "STMT_LST", 
+  "PLUS",
+  "MINUS", 
+  "STAR", 
+  "FORWARD_SLASH", 
+  "LT", 
+  "GT", 
+  "EQ", 
+  "LEQ", 
+  "GEQ", 
+  "INTEGER_NUMBER_VALUE", 
+  "FLOATING_POINT_NUMBER_VALUE", 
+  "ID_VALUE"
 };
 
 // Declaration of the createNode function.
@@ -135,7 +193,7 @@ assign_stmt : RES_WORD_SET IDENTIFIER expr SYMBOL_SEMICOLON
             | RES_WORD_READ IDENTIFIER SYMBOL_SEMICOLON
             | RES_WORD_PRINT expr SYMBOL_SEMICOLON
 		{
-			$$ = createNode(NOTHING, NOTHING, SyntaxTreeNodeTypeName[PRINT], ASSIGN_STMT, STMT, next, NULL, NULL, NULL, NULL);
+			$$ = createNode(NOTHING, NOTHING, NULL, PRINT, STMT, next, NULL, NULL, NULL, NULL);
 			//printf("assign_stmt apuntador: %p\n",$$);
 			next = $$;
 		}
@@ -469,7 +527,6 @@ void printTree(struct SyntaxTreeNode* node){
   if(node == NULL)
     return;
 
-
   printNodeType(node->type, "type");
   printf("Address = %p\n", node);
   printNodeType(node->parentNodeType, "parentNodeType");
@@ -483,7 +540,7 @@ void printTree(struct SyntaxTreeNode* node){
   printf("\n");
 
   for(i = 0; i < 4; i++)
-     printTree(node->arrPtr[i]);
+    printTree(node->arrPtr[i]);
 }
 
 int yyerror(char const * s) {
