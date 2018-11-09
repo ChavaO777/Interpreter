@@ -696,6 +696,9 @@ void printTree(struct SyntaxTreeNode* node){
  */ 
 int func_exprInt(struct SyntaxTreeNode* exprIntNode){
 
+  // If we enter an EXPR node, we must at least one term.
+  assert(exprIntNode != NULL);
+
   if(exprIntNode->type == PLUS){
 
     return func_exprInt(exprIntNode->arrPtr[0]) 
