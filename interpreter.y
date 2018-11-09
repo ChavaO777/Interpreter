@@ -872,7 +872,7 @@ void func_if(struct SyntaxTreeNode* ifNode){
 void func_ifElse(struct SyntaxTreeNode* ifElseNode){
 
   // If we enter an IF node, we must have an 'expresion' term
-  // and two 'stmt' term.
+  // and two 'stmt' terms.
   assert(ifElseNode->arrPtr[0] != NULL);
   assert(ifElseNode->arrPtr[1] != NULL);
   assert(ifElseNode->arrPtr[2] != NULL);
@@ -915,6 +915,10 @@ void traverseTree(struct SyntaxTreeNode* node){
     case IF:
 
       func_if(node);
+
+    case IFELSE:
+
+      func_ifElse(node);
   } 
 
   // Control nodes will call their children in their 
