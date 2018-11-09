@@ -781,6 +781,12 @@ void func_print(struct SyntaxTreeNode* printNode){
   }
 }
 
+/**
+ * Function that handles 'expresion' terms.
+ * 
+ * @param expresionNode the root node of the 'expresion' term.
+ * @returns A positive number is the expression is true. Else, 0.
+ */ 
 int func_expresion(struct SyntaxTreeNode* expresionNode){
 
   // If we enter an EXPRESION node, we must have two 'expr' terms
@@ -839,6 +845,11 @@ int func_expresion(struct SyntaxTreeNode* expresionNode){
   return -1;
 }
 
+/**
+ * Function that handles 'if' terms.
+ * 
+ * @param ifNode the root node of the 'if' term.
+ */ 
 void func_if(struct SyntaxTreeNode* ifNode){
 
   // If we enter an IF node, we must have both an 'expresion' term
@@ -850,6 +861,31 @@ void func_if(struct SyntaxTreeNode* ifNode){
 
     printf("TRUE!\n");
     // func_stmt(ifNode->arrPtr[1]);
+  }
+}
+
+/**
+ * Function that handles 'ifelse' terms.
+ * 
+ * @param ifElseNode the root node of the 'ifelse' term.
+ */ 
+void func_ifElse(struct SyntaxTreeNode* ifElseNode){
+
+  // If we enter an IF node, we must have an 'expresion' term
+  // and two 'stmt' term.
+  assert(ifElseNode->arrPtr[0] != NULL);
+  assert(ifElseNode->arrPtr[1] != NULL);
+  assert(ifElseNode->arrPtr[2] != NULL);
+
+  if(func_expresion(ifElseNode->arrPtr[0])){
+
+    printf("TRUE!\n");
+    // func_stmt(ifElseNode->arrPtr[1]);
+  }
+  else{
+
+    printf("FALSE!\n");
+    // func_stmt(ifElseNode->arrPtr[2]);
   }
 }
 
@@ -885,9 +921,9 @@ void traverseTree(struct SyntaxTreeNode* node){
   // respective functions. Skip these explicit calls
   // here.
   if(node->type != IF
-  && node->type != IFELSE
-  && node->type != WHILE
-  && node->type != FOR){
+    && node->type != IFELSE
+    && node->type != WHILE
+    && node->type != FOR){
 
     // Call the traversal of the current node's children.
     int i;
