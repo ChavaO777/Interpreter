@@ -15,6 +15,8 @@
 #include <math.h>
 #include "interpreter.tab.h"
 
+#include <assert.h>
+
 #include <stdlib.h> /* malloc. */
 #include <string.h> /* strlen. */
 
@@ -111,6 +113,9 @@ struct SyntaxTreeNode* createNode(
 
 // Declaration of the printTree function.
 void printTree(struct SyntaxTreeNode*);
+
+// Declaration of the traverseTree function.
+void traverseTree(struct SyntaxTreeNode*);
 %}
 
 /**
@@ -231,6 +236,7 @@ prog : RES_WORD_PROGRAM IDENTIFIER SYMBOL_LT_BRACKET opt_decls SYMBOL_RT_BRACKET
         struct SyntaxTreeNode* syntaxTreeRoot;
         syntaxTreeRoot = createNode(NOTHING, NOTHING, NULL, PROGRAM, NOTHING, $6, NULL, NULL, NULL, NULL);
         printTree(syntaxTreeRoot);
+        traverseTree(syntaxTreeRoot);
       }
 ;
 
@@ -663,6 +669,51 @@ void printTree(struct SyntaxTreeNode* node){
 
   for(i = 0; i < 4; i++)
     printTree(node->arrPtr[i]);
+}
+
+// This func_expr function is only for integers. 
+int func_exprInt(struct SyntaxTreeNode* exprIntNode){
+
+  return 0;
+}
+
+void func_print(struct SyntaxTreeNode* printNode){
+
+  // If we enter a PRINT node, we must have an 'expr' term
+  // for printing.
+  assert(printNode->arrPtr[0] != NULL);
+
+  if(printNode->arrPtr[0]->type == INTEGER_NUMBER_VALUE){
+
+    printf("%d\n", printNode->arrPtr[0]->value.intVal);
+  } 
+  // Careful: This 'expr' case only handles integers for now.
+  else if(printNode->arrPtr[0]->type == EXPR){
+
+    printf("%d\n", func_exprInt(printNode->arrPtr[0]));
+  }
+}
+
+void traverseTree(struct SyntaxTreeNode* node){
+
+  if(node == NULL)
+    return;
+
+  switch(node->type){
+
+    case PROGRAM:
+
+      break;
+
+    case PRINT:
+
+      func_print(node);
+      break;
+  } 
+
+  int i;
+  for(i = 0; i < 4; i++)
+    traverseTree(node->arrPtr[i]);
 }
 
 int yyerror(char const * s) {
