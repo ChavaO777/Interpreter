@@ -915,10 +915,12 @@ void traverseTree(struct SyntaxTreeNode* node){
     case IF:
 
       func_if(node);
+      break;
 
     case IFELSE:
 
       func_ifElse(node);
+      break;
   } 
 
   // Control nodes will call their children in their 
