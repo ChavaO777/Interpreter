@@ -72,7 +72,7 @@ float                                                   { return RES_WORD_FLOAT;
 
 ("-")?(({DIGITWZ}{DIGIT}*|"0")"."({DIGIT}*{DIGIT}))     { return FLOATING_POINT_NUMBER; } /* Floating-point numbers */
 
-("$"|{LETTER}|"_")("$"|{LETTER}|"_"|{DIGIT})*           { yylval.idName = strdup(yytext); printf("id value = %s\n", yylval.idName); return IDENTIFIER; } /* Identifiers */
+("$"|{LETTER}|"_")("$"|{LETTER}|"_"|{DIGIT})*           { yylval.idName = strdup(yytext); return IDENTIFIER; } /* Identifiers */
 
 <<EOF>>                                                 { return END_OF_FILE; } /* End-of-file */
 

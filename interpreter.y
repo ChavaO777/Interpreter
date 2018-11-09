@@ -696,7 +696,19 @@ void printTree(struct SyntaxTreeNode* node){
  */ 
 int func_exprInt(struct SyntaxTreeNode* exprIntNode){
 
-  return 0;
+  if(exprIntNode->type == PLUS){
+
+    return func_exprInt(exprIntNode->arrPtr[0]) 
+      + func_exprInt(exprIntNode->arrPtr[1]);
+  }
+  else if(exprIntNode->type == MINUS){
+
+    return func_exprInt(exprIntNode->arrPtr[0]) 
+      - func_exprInt(exprIntNode->arrPtr[1]);
+  }
+
+  assert(exprIntNode->type == INTEGER_NUMBER_VALUE);
+  return exprIntNode->value.intVal;
 }
 
 /**
@@ -742,7 +754,7 @@ void func_print(struct SyntaxTreeNode* printNode){
 
     printf("%d\n", printNode->arrPtr[0]->value.intVal);
   } 
-  else if(printNode->arrPtr[0]->type == EXPR){
+  else if(printNode->arrPtr[0]->parentNodeType == EXPR){
     
     if(isIntegerExpr(printNode->arrPtr[0])){
 
