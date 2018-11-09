@@ -1,0 +1,14 @@
+program uno
+{
+    
+}
+{   
+    print 0.0;
+    print 1.0;
+    print 14.0;
+    print 15.0;
+    print 16.0;
+    print 17.0;
+    print 18.0;
+    print 19.0;
+}
