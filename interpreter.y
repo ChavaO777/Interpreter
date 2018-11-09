@@ -781,6 +781,78 @@ void func_print(struct SyntaxTreeNode* printNode){
   }
 }
 
+int func_expresion(struct SyntaxTreeNode* expresionNode){
+
+  // If we enter an EXPRESION node, we must have two 'expr' terms
+  assert(expresionNode->arrPtr[0] != NULL);
+  assert(expresionNode->arrPtr[1] != NULL);
+
+  if(isIntegerExpr(expresionNode->arrPtr[0])){
+
+    int intExpresionLeftSide = func_exprInt(expresionNode->arrPtr[0]);
+    int intExpresionRightSide = func_exprInt(expresionNode->arrPtr[1]);
+
+    switch(expresionNode->type){
+
+      case LT:
+        return intExpresionLeftSide < intExpresionRightSide;
+
+      case GT:
+        return intExpresionLeftSide > intExpresionRightSide;
+
+      case EQ:
+        return intExpresionLeftSide == intExpresionRightSide;
+
+      case LEQ:
+        return intExpresionLeftSide <= intExpresionRightSide;
+
+      case GEQ:
+        return intExpresionLeftSide >= intExpresionRightSide;
+    }
+  }
+  else{
+
+    double doubleExpresionLeftSide = func_exprInt(expresionNode->arrPtr[0]);
+    int doubleExpresionRightSide = func_exprInt(expresionNode->arrPtr[1]);
+
+    switch(expresionNode->type){
+
+      case LT:
+        return doubleExpresionLeftSide < doubleExpresionRightSide;
+
+      case GT:
+        return doubleExpresionLeftSide > doubleExpresionRightSide;
+
+      case EQ:
+        return doubleExpresionLeftSide == doubleExpresionRightSide;
+
+      case LEQ:
+        return doubleExpresionLeftSide <= doubleExpresionRightSide;
+
+      case GEQ:
+        return doubleExpresionLeftSide >= doubleExpresionRightSide;
+    }
+  }
+
+  // Control should never reach this part of the function.
+  assert(NULL);
+  return -1;
+}
+
+void func_if(struct SyntaxTreeNode* ifNode){
+
+  // If we enter an IF node, we must have both an 'expresion' term
+  // and a 'stmt' term.
+  assert(ifNode->arrPtr[0] != NULL);
+  assert(ifNode->arrPtr[1] != NULL);
+
+  if(func_expresion(ifNode->arrPtr[0])){
+
+    printf("TRUE!\n");
+    // func_stmt(ifNode->arrPtr[1]);
+  }
+}
+
 /**
  * Function that traverses the syntax tree and
  * actually calls the execution of the input program
@@ -803,12 +875,25 @@ void traverseTree(struct SyntaxTreeNode* node){
 
       func_print(node);
       break;
+
+    case IF:
+
+      func_if(node);
   } 
 
-  // Now, call the traversal of the current node's children.
-  int i;
-  for(i = 0; i < 4; i++)
-    traverseTree(node->arrPtr[i]);
+  // Control nodes will call their children in their 
+  // respective functions. Skip these explicit calls
+  // here.
+  if(node->type != IF
+  && node->type != IFELSE
+  && node->type != WHILE
+  && node->type != FOR){
+
+    // Call the traversal of the current node's children.
+    int i;
+    for(i = 0; i < 4; i++)
+      traverseTree(node->arrPtr[i]);
+  }
 }
 
 int yyerror(char const * s) {
