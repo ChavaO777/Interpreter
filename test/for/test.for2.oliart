@@ -1,0 +1,13 @@
+program uno
+{
+    
+}
+{   
+    for set i 2 to 5 step 1 do
+    {
+        while(2 > 3)
+        {
+            print x;
+        }
+    }
+}
