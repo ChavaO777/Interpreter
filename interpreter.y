@@ -631,19 +631,30 @@ struct SyntaxTreeNode* createNode(int iVal, double dVal, char* idName,
     return newNodePtr;
 }
 
-void printNodeType(int type, char* name){
+/**
+ * Function that prints the node type of a given node.
+ * 
+ * @param type the type of node
+ * @param label a label to display with the type
+ */ 
+void printNodeType(int type, char* label){
 
   // If our names array contains an entry for this type
   if(type >= 0 && type < sizeof(SyntaxTreeNodeTypeName)){
 
-    printf("%s: %s\n", name, SyntaxTreeNodeTypeName[type]);
+    printf("%s: %s\n", label, SyntaxTreeNodeTypeName[type]);
   }
   else{
 
-    printf("%s: %d\n", name, type);
+    printf("%s: %d\n", label, type);
   }
 }
 
+/**
+ * Function that prints a given node of the syntax tree.
+ * 
+ * @param node the node to be printed.
+ */ 
 void printTree(struct SyntaxTreeNode* node){
 
   if(node == NULL)
@@ -653,30 +664,74 @@ void printTree(struct SyntaxTreeNode* node){
   printf("address = %p\n", node);
   printNodeType(node->parentNodeType, "parentNodeType");
 
-  if(node->type == INTEGER_NUMBER_VALUE)
+  if(node->type == INTEGER_NUMBER_VALUE){
+
     printf("Node value = %d\n",node->value.intVal);
+  }
 
   else if(node->type == ID_VALUE){
 
     printf("Node value = %s\n",node->value.idName);
   }
 
+  // Print the addresses of the current node's children
   int i = 0;
   for(i = 0; i < 4; i++)
     printf("ptr #%d: %p\n", i + 1, node->arrPtr[i]);
 
   printf("\n");
 
+  // Now call the printing of the current node's children
   for(i = 0; i < 4; i++)
     printTree(node->arrPtr[i]);
 }
 
-// This func_expr function is only for integers. 
+/**
+ * Function that computes a given expr term of integer
+ * numbers.
+ * 
+ * @param exprDoubleNode the root node of the 'expr' term of integers.
+ * @returns the integer value that results when the expression
+ * is evaluated.
+ */ 
 int func_exprInt(struct SyntaxTreeNode* exprIntNode){
 
   return 0;
 }
 
+/**
+ * Function that computes a given expr term of floating-point
+ * numbers.
+ * 
+ * @param exprDoubleNode the root node of the 'expr' term of doubles.
+ * @returns the floating-point value that results when the expression
+ * is evaluated.
+ */ 
+double func_exprDouble(struct SyntaxTreeNode* exprDoubleNode){
+
+  return 0.0;
+}
+
+/**
+ * Function that determines whether all the terms of a given
+ * 'expr' are integers.
+ * 
+ * @param exprNode the root node of the expr
+ * @returns 1 if all terms are integers. Else, 0.
+ */ 
+int isIntegerExpr(struct SyntaxTreeNode* exprNode){
+
+  //TO DO: implement this function
+  
+  return 1;
+}
+
+/**
+ * Function that handles print statements of the 
+ * language's grammar.
+ * 
+ * @param printNode the root node of the print statement
+ */ 
 void func_print(struct SyntaxTreeNode* printNode){
 
   // If we enter a PRINT node, we must have an 'expr' term
@@ -687,13 +742,26 @@ void func_print(struct SyntaxTreeNode* printNode){
 
     printf("%d\n", printNode->arrPtr[0]->value.intVal);
   } 
-  // Careful: This 'expr' case only handles integers for now.
   else if(printNode->arrPtr[0]->type == EXPR){
+    
+    if(isIntegerExpr(printNode->arrPtr[0])){
 
-    printf("%d\n", func_exprInt(printNode->arrPtr[0]));
+      printf("%d\n", func_exprInt(printNode->arrPtr[0]));
+    }
+    else{
+
+      printf("%lf\n", func_exprDouble(printNode->arrPtr[0]));
+    }
   }
 }
 
+/**
+ * Function that traverses the syntax tree and
+ * actually calls the execution of the input program
+ * 
+ * @param node the current node to which the execution control 
+ * is passed.
+ */ 
 void traverseTree(struct SyntaxTreeNode* node){
 
   if(node == NULL)
@@ -711,6 +779,7 @@ void traverseTree(struct SyntaxTreeNode* node){
       break;
   } 
 
+  // Now, call the traversal of the current node's children.
   int i;
   for(i = 0; i < 4; i++)
     traverseTree(node->arrPtr[i]);
