@@ -1,0 +1,10 @@
+program uno
+{
+    
+}
+{   
+    for set i 2 to 5 step 1 do
+    {
+        print 2;
+    }
+}

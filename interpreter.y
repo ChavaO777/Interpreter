@@ -30,6 +30,7 @@ enum SyntaxTreeNodeType {
   ITER_STMT, 
   CMP_STMT, 
   SET, 
+  TO,
   EXPR, 
   TERM, 
   FACTOR, 
@@ -67,6 +68,7 @@ char* SyntaxTreeNodeTypeName[] = {
   "ITER_STMT", 
   "CMP_STMT", 
   "SET", 
+  "TO",
   "EXPR", 
   "TERM", 
   "FACTOR", 
@@ -288,6 +290,14 @@ iter_stmt : RES_WORD_WHILE SYMBOL_LT_PARENTHESES expresion SYMBOL_RT_PARENTHESES
             $$ = createNode(NOTHING, NOTHING, NULL, WHILE, ITER_STMT, $3, $5, NULL, NULL, NULL);
           }
           | RES_WORD_FOR RES_WORD_SET IDENTIFIER expr RES_WORD_TO expr RES_WORD_STEP expr RES_WORD_DO stmt
+          {
+            struct SyntaxTreeNode* idNode = createNode(NOTHING, NOTHING, (char *)$3, ID_VALUE, FOR, NULL, NULL, NULL, NULL, NULL);
+            struct SyntaxTreeNode* setNode = createNode(NOTHING, NOTHING, NULL, SET, FOR, idNode, $4, NULL, NULL, NULL);
+            struct SyntaxTreeNode* toNode = createNode(NOTHING, NOTHING, NULL, TO, FOR, $6, NULL, NULL, NULL, NULL);
+            struct SyntaxTreeNode* stepNode = createNode(NOTHING, NOTHING, NULL, STEP, FOR, $8, NULL, NULL, NULL, NULL);
+            struct SyntaxTreeNode* doNode = createNode(NOTHING, NOTHING, NULL, DO, FOR, $10, NULL, NULL, NULL, NULL);
+            $$ = createNode(NOTHING, NOTHING, NULL, FOR, ITER_STMT, setNode, toNode, stepNode, doNode, NULL);
+          }
 ;
 
 cmp_stmt : SYMBOL_LT_BRACKET SYMBOL_RT_BRACKET { $$ = NULL; }
