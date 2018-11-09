@@ -330,11 +330,11 @@ expr : expr SYMBOL_PLUS term
 
 term : term SYMBOL_STAR factor
      {
-        $$ = createNode(NOTHING, NOTHING, NULL, STAR, EXPR, $1, $3, NULL, NULL, NULL);
+        $$ = createNode(NOTHING, NOTHING, NULL, STAR, TERM, $1, $3, NULL, NULL, NULL);
      }
      | term SYMBOL_FORWARD_SLASH factor
      {
-        $$ = createNode(NOTHING, NOTHING, NULL, FORWARD_SLASH, EXPR, $1, $3, NULL, NULL, NULL);
+        $$ = createNode(NOTHING, NOTHING, NULL, FORWARD_SLASH, TERM, $1, $3, NULL, NULL, NULL);
      }
      | factor { $$ = $1; }
 ;
@@ -709,6 +709,16 @@ int func_exprInt(struct SyntaxTreeNode* exprIntNode){
     return func_exprInt(exprIntNode->arrPtr[0]) 
       - func_exprInt(exprIntNode->arrPtr[1]);
   }
+  else if(exprIntNode->type == STAR){
+
+    return func_exprInt(exprIntNode->arrPtr[0]) 
+      * func_exprInt(exprIntNode->arrPtr[1]);
+  }
+  else if(exprIntNode->type == FORWARD_SLASH){
+
+    return func_exprInt(exprIntNode->arrPtr[0]) 
+      / func_exprInt(exprIntNode->arrPtr[1]);
+  }
 
   assert(exprIntNode->type == INTEGER_NUMBER_VALUE);
   return exprIntNode->value.intVal;
@@ -757,7 +767,8 @@ void func_print(struct SyntaxTreeNode* printNode){
 
     printf("%d\n", printNode->arrPtr[0]->value.intVal);
   } 
-  else if(printNode->arrPtr[0]->parentNodeType == EXPR){
+  else if(printNode->arrPtr[0]->parentNodeType == EXPR
+    || printNode->arrPtr[0]->parentNodeType == TERM){
     
     if(isIntegerExpr(printNode->arrPtr[0])){
 
