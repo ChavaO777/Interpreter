@@ -22,6 +22,22 @@
 
 #define NOTHING -99999
 
+// #define SYMBOL_TYPE_FUNCTION                  3
+
+enum symbolTableNodeType{
+
+  SYMBOL_TABLE_TYPE_INTEGER_NUMBER,
+  SYMBOL_TABLE_TYPE_FLOATING_POINT_NUMBER
+  // FUNCTION
+};
+
+char* symbolTableNodeTypeName[] = { 
+
+  "INTEGER_NUMBER",
+  "FLOATING_POINT_NUMBER"
+  // "FUNCTION"
+};
+
 // Enum for identifying the parent node of each node in the syntax tree.
 // This enum must be in sync with the SyntaxTreeNodeTypeName array.
 enum SyntaxTreeNodeType { 
@@ -116,6 +132,15 @@ void printTree(struct SyntaxTreeNode*);
 
 // Declaration of the traverseTree function.
 void traverseTree(struct SyntaxTreeNode*);
+
+// Declaration of the insertToSymbolTable function.
+struct SymbolTableNode* insertToSymbolTable(char const *, int);
+
+// Declaration of the head of the linked list representing the symbol table.
+struct SymbolTableNode *symbolTableHead;
+
+// Declaration of the printSymbolTable function.
+void printSymbolTable();
 %}
 
 /**
@@ -250,12 +275,23 @@ decls : dec SYMBOL_SEMICOLON decls
       | dec
 ;
 
-dec : RES_WORD_VAR IDENTIFIER SYMBOL_COLON tipo
+dec : RES_WORD_VAR IDENTIFIER SYMBOL_COLON RES_WORD_INT
+    {
+      // printf("id name = %s\n", (char*)$2);
+      symbolTableHead = insertToSymbolTable((char*)$2, SYMBOL_TABLE_TYPE_INTEGER_NUMBER);
+      printSymbolTable();
+    }
+    | RES_WORD_VAR IDENTIFIER SYMBOL_COLON RES_WORD_FLOAT
+    {
+      // printf("id name = %s\n", (char*)$2);
+      symbolTableHead = insertToSymbolTable((char*)$2, SYMBOL_TABLE_TYPE_FLOATING_POINT_NUMBER);
+      printSymbolTable();
+    }
 ;
 
-tipo : RES_WORD_INT
-     | RES_WORD_FLOAT
-;
+// tipo : RES_WORD_INT
+//      | RES_WORD_FLOAT
+// ;
 
 // ########### END of the rules for DECLARATIONS OF VARIABLES ###########
 
@@ -420,9 +456,6 @@ struct SymbolTableNode {
   struct SymbolTableNode *next;
 };
 
-// Declaration of the head of the linked list representing the symbol table.
-struct SymbolTableNode *symbolTableHead;
-
 /**
  * Function that inserts a new symbol to the symbol table.
  * 
@@ -473,6 +506,59 @@ struct SymbolTableNode* retrieveFromSymbolTable(char const *symbolName){
 
   handleError(ERROR_CODE_SYMBOL_NOT_FOUND, ERROR_MESSAGE_SYMBOL_NOT_FOUND);
   return 0;
+}
+
+/**
+ * Function to print a node of the symbol table.
+ * 
+ * @param node a pointer to the node to print
+ */ 
+void printSymbolTableNode(struct SymbolTableNode *node){
+
+  printf("Address: %p\n", node);
+  printf("Symbol: %s\n", node->name);
+
+  if(node->type < sizeof(symbolTableNodeTypeName)){
+
+    printf("Type: %s\n", symbolTableNodeTypeName[node->type]);
+  }
+  else{
+
+    printf("Type: %d\n", node->type);
+  }
+
+  switch(node->type){
+
+    case SYMBOL_TABLE_NODE_INTEGER_DATA_TYPE:
+
+      printf("Value: %d\n", node->value.intVal);
+      break;
+
+    case SYMBOL_TABLE_NODE_FLOATING_POINT_DATA_TYPE:
+
+      printf("Value: %lf\n", node->value.doubleVal);
+      break;
+  }
+
+  printf("Next symbol pointer = %p\n", node->next);
+  printf("\n");
+}
+
+/**
+ * Function to print the symbol table
+ */ 
+void printSymbolTable(){
+
+  printf("########## Start of symbol table ##########\n\n");
+  struct SymbolTableNode *currPtr = symbolTableHead;
+
+  while(currPtr != NULL){
+
+    printSymbolTableNode(currPtr);
+    currPtr = currPtr->next;
+  }
+
+  printf("########## End of symbol table ##########\n\n");
 }
 
 /**
