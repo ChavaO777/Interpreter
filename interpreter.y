@@ -337,10 +337,13 @@ iter_stmt : RES_WORD_WHILE SYMBOL_LT_PARENTHESES expresion SYMBOL_RT_PARENTHESES
           {
             struct SyntaxTreeNode* idNode = createNode(NOTHING, NOTHING, (char *)$3, ID_VALUE, FOR, NULL, NULL, NULL, NULL, NULL);
             struct SyntaxTreeNode* setNode = createNode(NOTHING, NOTHING, NULL, SET, FOR, idNode, $4, NULL, NULL, NULL);
-            struct SyntaxTreeNode* toNode = createNode(NOTHING, NOTHING, NULL, TO, FOR, $6, NULL, NULL, NULL, NULL);
-            struct SyntaxTreeNode* stepNode = createNode(NOTHING, NOTHING, NULL, STEP, FOR, $8, NULL, NULL, NULL, NULL);
-            struct SyntaxTreeNode* doNode = createNode(NOTHING, NOTHING, NULL, DO, FOR, $10, NULL, NULL, NULL, NULL);
-            $$ = createNode(NOTHING, NOTHING, NULL, FOR, ITER_STMT, setNode, toNode, stepNode, doNode, NULL);
+            struct SyntaxTreeNode* ltNode = createNode(NOTHING, NOTHING, NULL, LEQ, EXPRESION, idNode, $6, NULL, NULL, NULL);
+            struct SyntaxTreeNode* stepNode = createNode(NOTHING, NOTHING, NULL, PLUS, EXPR, idNode, $8, NULL, NULL, NULL);
+            struct SyntaxTreeNode* setNode2 = createNode(NOTHING, NOTHING, NULL, SET, FOR, idNode, stepNode, NULL, NULL, NULL);
+            //struct SyntaxTreeNode* toNode = createNode(NOTHING, NOTHING, NULL, TO, FOR, $6, NULL, NULL, NULL, NULL);
+            //struct SyntaxTreeNode* stepNode = createNode(NOTHING, NOTHING, NULL, STEP, FOR, $8, NULL, NULL, NULL, NULL);
+            //struct SyntaxTreeNode* doNode = createNode(NOTHING, NOTHING, NULL, DO, FOR, $10, NULL, NULL, NULL, NULL);
+            $$ = createNode(NOTHING, NOTHING, NULL, FOR, ITER_STMT, setNode, ltNode, setNode2, $10, NULL);
           }
 ;
 
@@ -1095,6 +1098,33 @@ void func_read(struct SyntaxTreeNode* readNode){
 }
 
 /**
+ * Function that handles 'for' terms.
+ * 
+ * @param whileNode the root node of the 'for' term.
+ */ 
+void func_for(struct SyntaxTreeNode* forNode){
+
+  // If we enter an IF node, we must have 3 'expresion' terms
+  assert(forNode->arrPtr[0] != NULL);
+  assert(forNode->arrPtr[1] != NULL);
+  assert(forNode->arrPtr[2] != NULL);
+
+  printf("FOR: \n");
+
+  //symbolTableHead = insertToSymbolTable(forNode->arrPtr[0]->arrPtr[0]->value.idName, INTEGER_NUMBER_VALUE);
+  func_set(forNode->arrPtr[0]);
+
+  //printSymbolTable();
+
+  while(func_expresion(forNode->arrPtr[1])){
+
+    //printf("TRUE!\n");
+    traverseTree(forNode->arrPtr[3]);
+    func_set(forNode->arrPtr[2]);
+  }
+}
+
+/**
  * Function that traverses the syntax tree and
  * actually calls the execution of the input program
  * 
@@ -1130,6 +1160,11 @@ void traverseTree(struct SyntaxTreeNode* node){
     case WHILE:
 
       func_while(node);
+      break;
+
+    case FOR:
+
+      func_for(node);
       break;
 
     case SET:
@@ -1190,8 +1225,8 @@ void handleInput(int argc, char **argv){
  */ 
 int main(int argc, char **argv) {
 
-  // extern int yydebug;
-  // yydebug = 1;
+  //extern int yydebug;
+  //yydebug = 1;
   handleInput(argc, argv);
   yyparse();
   return 0;
