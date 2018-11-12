@@ -12,19 +12,19 @@
 
 4. Build the symbols table                                                              DONE!
 5. Design the syntax tree node                                                          DONE!
-6. Build the syntax tree
+6. Build the syntax tree                                                                DONE!
 
-    6.1 Add an enum for the syntax tree node types
-    6.2 Write the C code for some (or all) the grammar rules.
+    6.1 Add an enum for the syntax tree node types                                      DONE!
+    6.2 Write the C code for some (or all) the grammar rules.                           DONE!
 
 
-7. Write the functions for traversing the syntax tree (executing the program)
+7. Write the functions for traversing the syntax tree (executing the program)           DONE!
 
 ## Steps on 11/12/2018
 
-1. Finish the syntax tree traversal
-2. Implement the logic for the variable declaration
-3. Search in the symbol table when a reference to an identifier is made.
+1. Finish the syntax tree traversal                                                     DONE!
+2. Implement the logic for the variable declaration                                     DONE!
+3. Search in the symbol table when a reference to an identifier is made.                DONE!
     - set
     - read
     - print

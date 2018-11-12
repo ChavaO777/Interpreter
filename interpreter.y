@@ -503,7 +503,7 @@ struct SymbolTableNode* retrieveFromSymbolTable(char const *symbolName){
   }
 
   handleError(ERROR_CODE_SYMBOL_NOT_FOUND, ERROR_MESSAGE_SYMBOL_NOT_FOUND);
-  return 0;
+  return NULL;
 }
 
 /**
@@ -1159,7 +1159,9 @@ void traverseTree(struct SyntaxTreeNode* node){
 }
 
 int yyerror(char const * s) {
+
   fprintf(stderr, "Error: %s\n", s);
+  return 0;
 }
 
 /**
