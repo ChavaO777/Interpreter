@@ -1,0 +1,10 @@
+program uno
+{
+   var x: int;
+   var y: int 
+}
+{   
+    set x 9;
+    set y 10;
+    print x * y;
+}

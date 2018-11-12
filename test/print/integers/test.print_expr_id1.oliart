@@ -1,8 +1,8 @@
 program uno
 {
-    var x: int
+   var x: int 
 }
 {   
-    read x;
+    set x 2;
     print x;
 }

@@ -22,6 +22,24 @@
 
 #define NOTHING -99999
 
+extern FILE *yyin;
+
+// #define SYMBOL_TYPE_FUNCTION                  3
+
+// enum symbolTableNodeType{
+
+//   INTEGER_NUMBER_VALUE,
+//   FLOATING_POINT_NUMBER_VALUE
+//   // FUNCTION
+// };
+
+// char* symbolTableNodeTypeName[] = { 
+
+//   "INTEGER_NUMBER_VALUE",
+//   "FLOATING_POINT_NUMBER_VALUE"
+//   // "FUNCTION"
+// };
+
 // Enum for identifying the parent node of each node in the syntax tree.
 // This enum must be in sync with the SyntaxTreeNodeTypeName array.
 enum SyntaxTreeNodeType { 
@@ -116,6 +134,15 @@ void printTree(struct SyntaxTreeNode*);
 
 // Declaration of the traverseTree function.
 void traverseTree(struct SyntaxTreeNode*);
+
+// Declaration of the insertToSymbolTable function.
+struct SymbolTableNode* insertToSymbolTable(char const *, int);
+
+// Declaration of the head of the linked list representing the symbol table.
+struct SymbolTableNode *symbolTableHead;
+
+// Declaration of the printSymbolTable function.
+void printSymbolTable();
 %}
 
 /**
@@ -250,12 +277,23 @@ decls : dec SYMBOL_SEMICOLON decls
       | dec
 ;
 
-dec : RES_WORD_VAR IDENTIFIER SYMBOL_COLON tipo
+dec : RES_WORD_VAR IDENTIFIER SYMBOL_COLON RES_WORD_INT
+    {
+      // printf("id name = %s\n", (char*)$2);
+      symbolTableHead = insertToSymbolTable((char*)$2, INTEGER_NUMBER_VALUE);
+      printSymbolTable();
+    }
+    | RES_WORD_VAR IDENTIFIER SYMBOL_COLON RES_WORD_FLOAT
+    {
+      // printf("id name = %s\n", (char*)$2);
+      symbolTableHead = insertToSymbolTable((char*)$2, FLOATING_POINT_NUMBER_VALUE);
+      printSymbolTable();
+    }
 ;
 
-tipo : RES_WORD_INT
-     | RES_WORD_FLOAT
-;
+// tipo : RES_WORD_INT
+//      | RES_WORD_FLOAT
+// ;
 
 // ########### END of the rules for DECLARATIONS OF VARIABLES ###########
 
@@ -391,10 +429,6 @@ expresion : expr SYMBOL_LT expr
 #define ERROR_MESSAGE_INVALID_ASSIGNMENT_TO_INT_SYMBOL                      "Attempted to assign an integer value to a symbol storing a floating-point value."
 #define ERROR_MESSAGE_INVALID_ASSIGNMENT_TO_FLOATING_POINT_SYMBOL           "Attempted to assign a floating-point value to a symbol storing an integer value."
 
-// Symbol table data types
-#define SYMBOL_TABLE_NODE_INTEGER_DATA_TYPE                                 1
-#define SYMBOL_TABLE_NODE_FLOATING_POINT_DATA_TYPE                          2
-
 void handleError(int errorCode, char *errorMessage){
 
   printf("Error #%d: %s\n", errorCode, errorMessage);
@@ -419,9 +453,6 @@ struct SymbolTableNode {
 
   struct SymbolTableNode *next;
 };
-
-// Declaration of the head of the linked list representing the symbol table.
-struct SymbolTableNode *symbolTableHead;
 
 /**
  * Function that inserts a new symbol to the symbol table.
@@ -476,6 +507,59 @@ struct SymbolTableNode* retrieveFromSymbolTable(char const *symbolName){
 }
 
 /**
+ * Function to print a node of the symbol table.
+ * 
+ * @param node a pointer to the node to print
+ */ 
+void printSymbolTableNode(struct SymbolTableNode *node){
+
+  printf("Address: %p\n", node);
+  printf("Symbol: %s\n", node->name);
+
+  if(node->type < sizeof(SyntaxTreeNodeTypeName)){
+
+    printf("Type: %s\n", SyntaxTreeNodeTypeName[node->type]);
+  }
+  else{
+
+    printf("Type: %d\n", node->type);
+  }
+
+  switch(node->type){
+
+    case INTEGER_NUMBER_VALUE:
+
+      printf("Value: %d\n", node->value.intVal);
+      break;
+
+    case FLOATING_POINT_NUMBER_VALUE:
+
+      printf("Value: %lf\n", node->value.doubleVal);
+      break;
+  }
+
+  printf("Next symbol pointer = %p\n", node->next);
+  printf("\n");
+}
+
+/**
+ * Function to print the symbol table
+ */ 
+void printSymbolTable(){
+
+  printf("########## Start of symbol table ##########\n\n");
+  struct SymbolTableNode *currPtr = symbolTableHead;
+
+  while(currPtr != NULL){
+
+    printSymbolTableNode(currPtr);
+    currPtr = currPtr->next;
+  }
+
+  printf("########## End of symbol table ##########\n\n");
+}
+
+/**
  * Function that assigns an integer value to a symbol in the symbol table.
  * 
  * @param symbolName the name of the symbol to which a value will be assigned.
@@ -488,7 +572,7 @@ void setIntValueToSymbol(char const *symbolName, int newIntegerValue){
   if(symbolPtr != NULL){
 
     // Check that the symbol does in fact store an integer
-    if(symbolPtr->type == SYMBOL_TABLE_NODE_INTEGER_DATA_TYPE){
+    if(symbolPtr->type == INTEGER_NUMBER_VALUE){
 
       symbolPtr->value.intVal = newIntegerValue;
     }
@@ -514,7 +598,7 @@ void setDoubleValueToSymbol(char const *symbolName, double newDoubleValue){
   if(symbolPtr != NULL){
 
     // Check that the symbol does in fact store a double
-    if(symbolPtr->type == SYMBOL_TABLE_NODE_FLOATING_POINT_DATA_TYPE){
+    if(symbolPtr->type == FLOATING_POINT_NUMBER_VALUE){
 
       symbolPtr->value.doubleVal = newDoubleValue;
     }
@@ -720,8 +804,28 @@ int func_exprInt(struct SyntaxTreeNode* exprIntNode){
       / func_exprInt(exprIntNode->arrPtr[1]);
   }
 
-  assert(exprIntNode->type == INTEGER_NUMBER_VALUE);
-  return exprIntNode->value.intVal;
+  printf("1 HERE!\n");
+  printTree(exprIntNode);
+  printf("2 HERE!\n");
+
+  assert(exprIntNode->type == INTEGER_NUMBER_VALUE
+    || exprIntNode->type == ID_VALUE);
+
+  int valToReturn = 0;
+
+  if(exprIntNode->type == INTEGER_NUMBER_VALUE){
+
+    valToReturn = exprIntNode->value.intVal;
+  }
+  else if(exprIntNode->type == ID_VALUE){
+
+    struct SymbolTableNode *currNode = retrieveFromSymbolTable(exprIntNode->value.idName);
+    assert(currNode->type == INTEGER_NUMBER_VALUE);
+    printSymbolTableNode(currNode);
+    valToReturn = currNode->value.intVal;
+  }
+
+  return valToReturn;
 }
 
 /**
@@ -768,7 +872,8 @@ void func_print(struct SyntaxTreeNode* printNode){
     printf("%d\n", printNode->arrPtr[0]->value.intVal);
   } 
   else if(printNode->arrPtr[0]->parentNodeType == EXPR
-    || printNode->arrPtr[0]->parentNodeType == TERM){
+    || printNode->arrPtr[0]->parentNodeType == TERM
+    || printNode->arrPtr[0]->parentNodeType == FACTOR){
     
     if(isIntegerExpr(printNode->arrPtr[0])){
 
@@ -913,6 +1018,85 @@ void func_ifElse(struct SyntaxTreeNode* ifElseNode){
 }
 
 /**
+ * Function that handles 'set' terms.
+ * 
+ * @param setNode the root node of the 'set' term.
+ */ 
+void func_set(struct SyntaxTreeNode* setNode){
+
+  // Each set statement must contain both the corresponding
+  // id and the desired value
+  assert(setNode->arrPtr[0] != NULL);
+  assert(setNode->arrPtr[1] != NULL);
+
+  // printf("symbol to retrieve: %s\n", setNode->arrPtr[0]->value.idName);
+  struct SymbolTableNode* currNode = retrieveFromSymbolTable(setNode->arrPtr[0]->value.idName);
+  
+  assert(currNode != NULL);
+
+  int exprValueToSet;
+
+  switch(currNode->type){
+
+    case INTEGER_NUMBER_VALUE:
+      exprValueToSet = func_exprInt(setNode->arrPtr[1]);
+      setIntValueToSymbol(currNode->name, exprValueToSet);
+      printSymbolTableNode(currNode);
+      assert(exprValueToSet == currNode->value.intVal);
+      break;
+
+    case FLOATING_POINT_NUMBER_VALUE:
+
+      break;
+  }
+}
+
+/**
+ * Function to read an integer and assert that the 
+ * reading was successful.
+ * 
+ * @returns intVal the integer read
+ */ 
+int readInteger(){
+
+  int intVal = -1;
+  printf("Insert an integer: ");
+  int scanfReturnValue = scanf("%d", &intVal);
+  assert(scanfReturnValue > 0);
+  return intVal;
+}
+
+/**
+ * Function that handles 'read' terms.
+ * 
+ * @param readNode the root node of the 'read' term.
+ */ 
+void func_read(struct SyntaxTreeNode* readNode){
+
+  // Each set statement must contain the corresponding
+  // id to be read.
+  assert(readNode->arrPtr[0] != NULL);
+
+  struct SymbolTableNode* currNode = retrieveFromSymbolTable(readNode->arrPtr[0]->value.idName);
+
+  int valueToSet;
+
+  switch(currNode->type){
+
+    case INTEGER_NUMBER_VALUE:
+      valueToSet = readInteger();
+      setIntValueToSymbol(currNode->name, valueToSet);
+      printSymbolTableNode(currNode);
+      assert(valueToSet == currNode->value.intVal);
+      break;
+
+    case FLOATING_POINT_NUMBER_VALUE:
+
+      break;
+  }
+}
+
+/**
  * Function that traverses the syntax tree and
  * actually calls the execution of the input program
  * 
@@ -949,6 +1133,16 @@ void traverseTree(struct SyntaxTreeNode* node){
 
       func_while(node);
       break;
+
+    case SET:
+
+      func_set(node);
+      break;
+
+    case READ:
+
+      func_read(node);
+      break;
   } 
 
   // Control nodes will call their children in their 
@@ -970,11 +1164,37 @@ int yyerror(char const * s) {
   fprintf(stderr, "Error: %s\n", s);
 }
 
-int main() {
+/**
+ * Function for handling input either from arguments to the main() function
+ * or from standard input (e.g. redirection to file.)
+ * 
+ * @param argc the amount of arguments that the main() function received.
+ * @param argv the pointer to pointer to char corresponding to the arguments 
+ * that the main() function received.
+ */ 
+void handleInput(int argc, char **argv){
+
+    // If an input file was passed
+    if(argc > 1){
+
+      // Open the input file for Lex
+      yyin = fopen(argv[1], "r");
+    }
+    else{
+        
+      // Else, just use standard input
+      yyin = stdin;
+    }
+}
+
+/**
+ * Main function of the program.
+ */ 
+int main(int argc, char **argv) {
 
   // extern int yydebug;
   // yydebug = 1;
-
+  handleInput(argc, argv);
   yyparse();
   return 0;
 }
