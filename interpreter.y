@@ -804,9 +804,9 @@ int func_exprInt(struct SyntaxTreeNode* exprIntNode){
       / func_exprInt(exprIntNode->arrPtr[1]);
   }
 
-  printf("1 HERE!\n");
-  printTree(exprIntNode);
-  printf("2 HERE!\n");
+  //printf("1 HERE!\n");
+  //printTree(exprIntNode);
+  //printf("2 HERE!\n");
 
   assert(exprIntNode->type == INTEGER_NUMBER_VALUE
     || exprIntNode->type == ID_VALUE);
@@ -821,7 +821,7 @@ int func_exprInt(struct SyntaxTreeNode* exprIntNode){
 
     struct SymbolTableNode *currNode = retrieveFromSymbolTable(exprIntNode->value.idName);
     assert(currNode->type == INTEGER_NUMBER_VALUE);
-    printSymbolTableNode(currNode);
+    //printSymbolTableNode(currNode);
     valToReturn = currNode->value.intVal;
   }
 
@@ -962,10 +962,8 @@ void func_while(struct SyntaxTreeNode* whileNode){
 
   while(func_expresion(whileNode->arrPtr[0])){
 
-    printf("TRUE!\n");
-    //If node have a pointer to stmt, execute that node.
-    if(whileNode->arrPtr[1] != NULL)
-    	traverseTree(whileNode->arrPtr[1]);
+    //printf("TRUE!\n");
+    traverseTree(whileNode->arrPtr[1]);
   }
 }
 
@@ -1041,7 +1039,7 @@ void func_set(struct SyntaxTreeNode* setNode){
     case INTEGER_NUMBER_VALUE:
       exprValueToSet = func_exprInt(setNode->arrPtr[1]);
       setIntValueToSymbol(currNode->name, exprValueToSet);
-      printSymbolTableNode(currNode);
+      //printSymbolTableNode(currNode);
       assert(exprValueToSet == currNode->value.intVal);
       break;
 
