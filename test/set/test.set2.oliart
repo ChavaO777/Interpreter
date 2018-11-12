@@ -1,0 +1,9 @@
+program uno
+{
+    var x: int;
+    var y: int
+}
+{   
+    set x 2;
+    set y -2;
+}

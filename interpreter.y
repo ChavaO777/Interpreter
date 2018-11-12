@@ -24,19 +24,19 @@
 
 // #define SYMBOL_TYPE_FUNCTION                  3
 
-enum symbolTableNodeType{
+// enum symbolTableNodeType{
 
-  SYMBOL_TABLE_TYPE_INTEGER_NUMBER,
-  SYMBOL_TABLE_TYPE_FLOATING_POINT_NUMBER
-  // FUNCTION
-};
+//   INTEGER_NUMBER_VALUE,
+//   FLOATING_POINT_NUMBER_VALUE
+//   // FUNCTION
+// };
 
-char* symbolTableNodeTypeName[] = { 
+// char* symbolTableNodeTypeName[] = { 
 
-  "INTEGER_NUMBER",
-  "FLOATING_POINT_NUMBER"
-  // "FUNCTION"
-};
+//   "INTEGER_NUMBER_VALUE",
+//   "FLOATING_POINT_NUMBER_VALUE"
+//   // "FUNCTION"
+// };
 
 // Enum for identifying the parent node of each node in the syntax tree.
 // This enum must be in sync with the SyntaxTreeNodeTypeName array.
@@ -278,13 +278,13 @@ decls : dec SYMBOL_SEMICOLON decls
 dec : RES_WORD_VAR IDENTIFIER SYMBOL_COLON RES_WORD_INT
     {
       // printf("id name = %s\n", (char*)$2);
-      symbolTableHead = insertToSymbolTable((char*)$2, SYMBOL_TABLE_TYPE_INTEGER_NUMBER);
+      symbolTableHead = insertToSymbolTable((char*)$2, INTEGER_NUMBER_VALUE);
       printSymbolTable();
     }
     | RES_WORD_VAR IDENTIFIER SYMBOL_COLON RES_WORD_FLOAT
     {
       // printf("id name = %s\n", (char*)$2);
-      symbolTableHead = insertToSymbolTable((char*)$2, SYMBOL_TABLE_TYPE_FLOATING_POINT_NUMBER);
+      symbolTableHead = insertToSymbolTable((char*)$2, FLOATING_POINT_NUMBER_VALUE);
       printSymbolTable();
     }
 ;
@@ -427,10 +427,6 @@ expresion : expr SYMBOL_LT expr
 #define ERROR_MESSAGE_INVALID_ASSIGNMENT_TO_INT_SYMBOL                      "Attempted to assign an integer value to a symbol storing a floating-point value."
 #define ERROR_MESSAGE_INVALID_ASSIGNMENT_TO_FLOATING_POINT_SYMBOL           "Attempted to assign a floating-point value to a symbol storing an integer value."
 
-// Symbol table data types
-#define SYMBOL_TABLE_NODE_INTEGER_DATA_TYPE                                 1
-#define SYMBOL_TABLE_NODE_FLOATING_POINT_DATA_TYPE                          2
-
 void handleError(int errorCode, char *errorMessage){
 
   printf("Error #%d: %s\n", errorCode, errorMessage);
@@ -518,9 +514,9 @@ void printSymbolTableNode(struct SymbolTableNode *node){
   printf("Address: %p\n", node);
   printf("Symbol: %s\n", node->name);
 
-  if(node->type < sizeof(symbolTableNodeTypeName)){
+  if(node->type < sizeof(SyntaxTreeNodeTypeName)){
 
-    printf("Type: %s\n", symbolTableNodeTypeName[node->type]);
+    printf("Type: %s\n", SyntaxTreeNodeTypeName[node->type]);
   }
   else{
 
@@ -529,12 +525,12 @@ void printSymbolTableNode(struct SymbolTableNode *node){
 
   switch(node->type){
 
-    case SYMBOL_TABLE_NODE_INTEGER_DATA_TYPE:
+    case INTEGER_NUMBER_VALUE:
 
       printf("Value: %d\n", node->value.intVal);
       break;
 
-    case SYMBOL_TABLE_NODE_FLOATING_POINT_DATA_TYPE:
+    case FLOATING_POINT_NUMBER_VALUE:
 
       printf("Value: %lf\n", node->value.doubleVal);
       break;
@@ -574,7 +570,7 @@ void setIntValueToSymbol(char const *symbolName, int newIntegerValue){
   if(symbolPtr != NULL){
 
     // Check that the symbol does in fact store an integer
-    if(symbolPtr->type == SYMBOL_TABLE_NODE_INTEGER_DATA_TYPE){
+    if(symbolPtr->type == INTEGER_NUMBER_VALUE){
 
       symbolPtr->value.intVal = newIntegerValue;
     }
@@ -600,7 +596,7 @@ void setDoubleValueToSymbol(char const *symbolName, double newDoubleValue){
   if(symbolPtr != NULL){
 
     // Check that the symbol does in fact store a double
-    if(symbolPtr->type == SYMBOL_TABLE_NODE_FLOATING_POINT_DATA_TYPE){
+    if(symbolPtr->type == FLOATING_POINT_NUMBER_VALUE){
 
       symbolPtr->value.doubleVal = newDoubleValue;
     }
@@ -976,6 +972,39 @@ void func_ifElse(struct SyntaxTreeNode* ifElseNode){
 }
 
 /**
+ * Function that handles 'set' terms.
+ * 
+ */ 
+void func_set(struct SyntaxTreeNode* setNode){
+
+  // Each set statement must contain both the corresponding
+  // id and the desired value
+  assert(setNode->arrPtr[0] != NULL);
+  assert(setNode->arrPtr[1] != NULL);
+
+  printf("symbol to retrieve: %s\n", setNode->arrPtr[0]->value.idName);
+  struct SymbolTableNode* currNode = retrieveFromSymbolTable(setNode->arrPtr[0]->value.idName);
+  
+  assert(currNode != NULL);
+
+  int exprValueToSet;
+
+  switch(currNode->type){
+
+    case INTEGER_NUMBER_VALUE:
+      exprValueToSet = func_exprInt(setNode->arrPtr[1]);
+      setIntValueToSymbol(currNode->name, exprValueToSet);
+      printSymbolTableNode(currNode);
+      assert(exprValueToSet == currNode->value.intVal);
+      break;
+
+    case FLOATING_POINT_NUMBER_VALUE:
+
+      break;
+  }
+}
+
+/**
  * Function that traverses the syntax tree and
  * actually calls the execution of the input program
  * 
@@ -1006,6 +1035,11 @@ void traverseTree(struct SyntaxTreeNode* node){
     case IFELSE:
 
       func_ifElse(node);
+      break;
+
+    case SET:
+
+      func_set(node);
       break;
   } 
 
