@@ -22,6 +22,8 @@
 
 #define NOTHING -99999
 
+extern FILE *yyin;
+
 // #define SYMBOL_TYPE_FUNCTION                  3
 
 // enum symbolTableNodeType{
@@ -974,6 +976,7 @@ void func_ifElse(struct SyntaxTreeNode* ifElseNode){
 /**
  * Function that handles 'set' terms.
  * 
+ * @param setNode the root node of the 'set' term.
  */ 
 void func_set(struct SyntaxTreeNode* setNode){
 
@@ -982,7 +985,7 @@ void func_set(struct SyntaxTreeNode* setNode){
   assert(setNode->arrPtr[0] != NULL);
   assert(setNode->arrPtr[1] != NULL);
 
-  printf("symbol to retrieve: %s\n", setNode->arrPtr[0]->value.idName);
+  // printf("symbol to retrieve: %s\n", setNode->arrPtr[0]->value.idName);
   struct SymbolTableNode* currNode = retrieveFromSymbolTable(setNode->arrPtr[0]->value.idName);
   
   assert(currNode != NULL);
@@ -996,6 +999,51 @@ void func_set(struct SyntaxTreeNode* setNode){
       setIntValueToSymbol(currNode->name, exprValueToSet);
       printSymbolTableNode(currNode);
       assert(exprValueToSet == currNode->value.intVal);
+      break;
+
+    case FLOATING_POINT_NUMBER_VALUE:
+
+      break;
+  }
+}
+
+/**
+ * Function to read an integer and assert that the 
+ * reading was successful.
+ * 
+ * @returns intVal the integer read
+ */ 
+int readInteger(){
+
+  int intVal = -1;
+  printf("Insert an integer: ");
+  int scanfReturnValue = scanf("%d", &intVal);
+  assert(scanfReturnValue > 0);
+  return intVal;
+}
+
+/**
+ * Function that handles 'read' terms.
+ * 
+ * @param readNode the root node of the 'read' term.
+ */ 
+void func_read(struct SyntaxTreeNode* readNode){
+
+  // Each set statement must contain the corresponding
+  // id to be read.
+  assert(readNode->arrPtr[0] != NULL);
+
+  struct SymbolTableNode* currNode = retrieveFromSymbolTable(readNode->arrPtr[0]->value.idName);
+
+  int valueToSet;
+
+  switch(currNode->type){
+
+    case INTEGER_NUMBER_VALUE:
+      valueToSet = readInteger();
+      setIntValueToSymbol(currNode->name, valueToSet);
+      printSymbolTableNode(currNode);
+      assert(valueToSet == currNode->value.intVal);
       break;
 
     case FLOATING_POINT_NUMBER_VALUE:
@@ -1041,6 +1089,11 @@ void traverseTree(struct SyntaxTreeNode* node){
 
       func_set(node);
       break;
+
+    case READ:
+
+      func_read(node);
+      break;
   } 
 
   // Control nodes will call their children in their 
@@ -1062,11 +1115,37 @@ int yyerror(char const * s) {
   fprintf(stderr, "Error: %s\n", s);
 }
 
-int main() {
+/**
+ * Function for handling input either from arguments to the main() function
+ * or from standard input (e.g. redirection to file.)
+ * 
+ * @param argc the amount of arguments that the main() function received.
+ * @param argv the pointer to pointer to char corresponding to the arguments 
+ * that the main() function received.
+ */ 
+void handleInput(int argc, char **argv){
+
+    // If an input file was passed
+    if(argc > 1){
+
+      // Open the input file for Lex
+      yyin = fopen(argv[1], "r");
+    }
+    else{
+        
+      // Else, just use standard input
+      yyin = stdin;
+    }
+}
+
+/**
+ * Main function of the program.
+ */ 
+int main(int argc, char **argv) {
 
   // extern int yydebug;
   // yydebug = 1;
-
+  handleInput(argc, argv);
   yyparse();
   return 0;
 }
