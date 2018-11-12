@@ -16,3 +16,12 @@ flex interpreter.lex
 bison -d interpreter.y
 gcc lex.yy.c interpreter.tab.c -ll
 ./a.out
+
+# Instructions for running a test
+
+- Compile the project
+- ./a.out <PATH_TO_TEST_NAME>
+
+**E.g.** 
+
+./a.out test/print/integers/test.print_expr.oliart
