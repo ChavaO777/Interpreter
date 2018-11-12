@@ -1,0 +1,8 @@
+program uno
+{
+   var x: int 
+}
+{   
+    set x 2;
+    print x;
+}

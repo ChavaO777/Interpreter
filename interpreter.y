@@ -804,8 +804,28 @@ int func_exprInt(struct SyntaxTreeNode* exprIntNode){
       / func_exprInt(exprIntNode->arrPtr[1]);
   }
 
-  assert(exprIntNode->type == INTEGER_NUMBER_VALUE);
-  return exprIntNode->value.intVal;
+  printf("1 HERE!\n");
+  printTree(exprIntNode);
+  printf("2 HERE!\n");
+
+  assert(exprIntNode->type == INTEGER_NUMBER_VALUE
+    || exprIntNode->type == ID_VALUE);
+
+  int valToReturn = 0;
+
+  if(exprIntNode->type == INTEGER_NUMBER_VALUE){
+
+    valToReturn = exprIntNode->value.intVal;
+  }
+  else if(exprIntNode->type == ID_VALUE){
+
+    struct SymbolTableNode *currNode = retrieveFromSymbolTable(exprIntNode->value.idName);
+    assert(currNode->type == INTEGER_NUMBER_VALUE);
+    printSymbolTableNode(currNode);
+    valToReturn = currNode->value.intVal;
+  }
+
+  return valToReturn;
 }
 
 /**
@@ -852,7 +872,8 @@ void func_print(struct SyntaxTreeNode* printNode){
     printf("%d\n", printNode->arrPtr[0]->value.intVal);
   } 
   else if(printNode->arrPtr[0]->parentNodeType == EXPR
-    || printNode->arrPtr[0]->parentNodeType == TERM){
+    || printNode->arrPtr[0]->parentNodeType == TERM
+    || printNode->arrPtr[0]->parentNodeType == FACTOR){
     
     if(isIntegerExpr(printNode->arrPtr[0])){
 
