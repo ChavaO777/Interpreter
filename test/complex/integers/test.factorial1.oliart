@@ -1,0 +1,13 @@
+program uno
+{
+    var fact: int;
+    var n: int
+}
+{   
+    set fact 1;
+
+    for set n 1 to 5 step 1 do
+        set fact fact * n;
+
+    print fact;
+}
