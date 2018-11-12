@@ -80,8 +80,6 @@ float                                                   { return RES_WORD_FLOAT;
 
 " "                                                     { ; } /* If the space returns a value, a syntax error will be produced. */
 
-"\t"                                                     { ; } /* If the tab returns a value, a syntax error will be produced. */
-
 "\n"                                                    { yylineno++; } /* If the new line returns a value, a syntax error will be produced. */
 
 .                                                       { return 1100; } /* Anything else */
