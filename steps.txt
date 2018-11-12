@@ -25,6 +25,7 @@
 1. Finish the syntax tree traversal
 2. Implement the logic for the variable declaration
 3. Search in the symbol table when a reference to an identifier is made.
+    - set
     - read
     - print
     - expr
