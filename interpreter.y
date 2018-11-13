@@ -1093,12 +1093,11 @@ int func_expresion(struct SyntaxTreeNode* expresionNode){
  */ 
 void func_while(struct SyntaxTreeNode* whileNode){
 
-  // If we enter an IF node, we must have an 'expresion' 
+  // If we enter a WHILE node, we must have an 'expresion' 
   assert(whileNode->arrPtr[0] != NULL);
 
   while(func_expresion(whileNode->arrPtr[0])){
 
-    //printf("TRUE!\n");
     traverseTree(whileNode->arrPtr[1]);
   }
 }
@@ -1118,8 +1117,7 @@ void func_if(struct SyntaxTreeNode* ifNode){
 
   if(func_expresion(ifNode->arrPtr[0])){
 
-    //printf("TRUE!\n");
-    //If node have a pointer to stmt, execute that node.
+    // If the node has a pointer to stmt, execute that node.
     if(ifNode->arrPtr[1] != NULL)
     	traverseTree(ifNode->arrPtr[1]);
   }
@@ -1141,12 +1139,10 @@ void func_ifElse(struct SyntaxTreeNode* ifElseNode){
 
   if(func_expresion(ifElseNode->arrPtr[0])){
 
-    printf("TRUE!\n");
     traverseTree(ifElseNode->arrPtr[1]);
   }
   else{
 
-    printf("FALSE!\n");
     traverseTree(ifElseNode->arrPtr[2]);
   }
 }
@@ -1214,7 +1210,7 @@ double readDouble(){
 
   double doubleVal = -1.0;
   printf("Insert an floating point number: ");
-  double scanfReturnValue = scanf("%lf", &doubleVal);
+  int scanfReturnValue = scanf("%lf", &doubleVal);
   assert(scanfReturnValue > 0);
   return doubleVal;
 }
@@ -1260,21 +1256,15 @@ void func_read(struct SyntaxTreeNode* readNode){
  */ 
 void func_for(struct SyntaxTreeNode* forNode){
 
-  // If we enter an IF node, we must have 3 'expresion' terms
+  // If we enter a FOR node, we must have 3 'expr' terms
   assert(forNode->arrPtr[0] != NULL);
   assert(forNode->arrPtr[1] != NULL);
   assert(forNode->arrPtr[2] != NULL);
 
-  printf("FOR: \n");
-
-  //symbolTableHead = insertToSymbolTable(forNode->arrPtr[0]->arrPtr[0]->value.idName, INTEGER_NUMBER_VALUE);
   func_set(forNode->arrPtr[0]);
-
-  //printSymbolTable();
 
   while(func_expresion(forNode->arrPtr[1])){
 
-    //printf("TRUE!\n");
     traverseTree(forNode->arrPtr[3]);
     func_set(forNode->arrPtr[2]);
   }
