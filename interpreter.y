@@ -939,7 +939,7 @@ int exprIsTypeConsistent(struct SyntaxTreeNode* exprNode){
   int doubleSubTreeNodeCount = computeSubTreeNodeTypeCount(FLOATING_POINT_NUMBER_VALUE, exprNode);
 
   printTree(exprNode);
-  printf("intSubTreeNodeCount: %d; doubleSubTreeNodeCount: %d\n", intSubTreeNodeCount, doubleSubTreeNodeCount);
+  // printf("intSubTreeNodeCount: %d; doubleSubTreeNodeCount: %d\n", intSubTreeNodeCount, doubleSubTreeNodeCount);
 
   if(intSubTreeNodeCount > 0 && doubleSubTreeNodeCount == 0)
     return INTEGER_NUMBER_VALUE;
