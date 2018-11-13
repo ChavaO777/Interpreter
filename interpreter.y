@@ -24,6 +24,8 @@
 
 extern FILE *yyin;
 
+double doubleVal;
+
 // #define SYMBOL_TYPE_FUNCTION                  3
 
 // enum symbolTableNodeType{
@@ -396,6 +398,10 @@ factor : SYMBOL_LT_PARENTHESES expr SYMBOL_RT_PARENTHESES
           $$ = createNode((int)$1, NOTHING, NULL, INTEGER_NUMBER_VALUE, TERM, NULL, NULL, NULL, NULL, NULL);
        }
        | FLOATING_POINT_NUMBER
+       {
+          //printf("Floating point number = %f\n",doubleVal);
+          $$ = createNode(NOTHING, doubleVal, NULL, FLOATING_POINT_NUMBER_VALUE, TERM, NULL, NULL, NULL, NULL, NULL);
+       }
 ;
 
 expresion : expr SYMBOL_LT expr
@@ -761,6 +767,10 @@ void printTree(struct SyntaxTreeNode* node){
     printf("Node value = %s\n",node->value.idName);
   }
 
+  else if(node->type == FLOATING_POINT_NUMBER_VALUE){
+    printf("Node value = %f\n",node->value.doubleVal);
+  }
+
   // Print the addresses of the current node's children
   int i = 0;
   for(i = 0; i < 4; i++)
@@ -812,7 +822,8 @@ int func_exprInt(struct SyntaxTreeNode* exprIntNode){
   //printf("2 HERE!\n");
 
   assert(exprIntNode->type == INTEGER_NUMBER_VALUE
-    || exprIntNode->type == ID_VALUE);
+    || exprIntNode->type == ID_VALUE
+    || exprIntNode-> type == FLOATING_POINT_NUMBER_VALUE);
 
   int valToReturn = 0;
 
@@ -826,6 +837,8 @@ int func_exprInt(struct SyntaxTreeNode* exprIntNode){
     assert(currNode->type == INTEGER_NUMBER_VALUE);
     //printSymbolTableNode(currNode);
     valToReturn = currNode->value.intVal;
+  }else if(exprIntNode->type == FLOATING_POINT_NUMBER_VALUE){
+    valToReturn = exprIntNode->value.doubleVal;
   }
 
   return valToReturn;
@@ -874,6 +887,9 @@ void func_print(struct SyntaxTreeNode* printNode){
 
     printf("%d\n", printNode->arrPtr[0]->value.intVal);
   } 
+  else if(printNode->arrPtr[0]->type == FLOATING_POINT_NUMBER_VALUE){
+    printf("%f\n", printNode->arrPtr[0]->value.doubleVal);
+  }
   else if(printNode->arrPtr[0]->parentNodeType == EXPR
     || printNode->arrPtr[0]->parentNodeType == TERM
     || printNode->arrPtr[0]->parentNodeType == FACTOR){
