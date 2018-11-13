@@ -265,6 +265,7 @@ prog : RES_WORD_PROGRAM IDENTIFIER SYMBOL_LT_BRACKET opt_decls SYMBOL_RT_BRACKET
         struct SyntaxTreeNode* syntaxTreeRoot;
         syntaxTreeRoot = createNode(NOTHING, NOTHING, NULL, PROGRAM, NOTHING, $6, NULL, NULL, NULL, NULL);
         printTree(syntaxTreeRoot);
+        printSymbolTable();
         traverseTree(syntaxTreeRoot);
       }
 ;
@@ -283,13 +284,11 @@ dec : RES_WORD_VAR IDENTIFIER SYMBOL_COLON RES_WORD_INT
     {
       // printf("id name = %s\n", (char*)$2);
       symbolTableHead = insertToSymbolTable((char*)$2, INTEGER_NUMBER_VALUE);
-      printSymbolTable();
     }
     | RES_WORD_VAR IDENTIFIER SYMBOL_COLON RES_WORD_FLOAT
     {
       // printf("id name = %s\n", (char*)$2);
       symbolTableHead = insertToSymbolTable((char*)$2, FLOATING_POINT_NUMBER_VALUE);
-      printSymbolTable();
     }
 ;
 
@@ -867,7 +866,22 @@ int computeSubTreeNodeTypeCount(int nodeType, struct SyntaxTreeNode* node){
   if(node == NULL)
     return 0;
 
-  int count = (node->type == nodeType);
+  int count = 0;
+  
+  // In case it is a constant
+  if(node->type == nodeType){
+
+    count++;
+  }
+  
+  // In case it is an identifier
+  else if(node->type == ID_VALUE){
+
+    struct SymbolTableNode* currIdNode = retrieveFromSymbolTable(node->value.idName);
+    
+    if(currIdNode->type == nodeType)
+      count++;
+  }
 
   for(int i = 0; i < 4; i++){
 
@@ -992,10 +1006,10 @@ int func_expresion(struct SyntaxTreeNode* expresionNode){
   }
   else{
 
-    assert(isFloatingPointExpr(printNode->arrPtr[0]));
+    assert(isFloatingPointExpr(expresionNode->arrPtr[0]));
 
-    double doubleExpresionLeftSide = func_exprInt(expresionNode->arrPtr[0]);
-    int doubleExpresionRightSide = func_exprInt(expresionNode->arrPtr[1]);
+    double doubleExpresionLeftSide = func_exprDouble(expresionNode->arrPtr[0]);
+    int doubleExpresionRightSide = func_exprDouble(expresionNode->arrPtr[1]);
 
     switch(expresionNode->type){
 
