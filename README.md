@@ -28,3 +28,5 @@ Execute the following commands in bash:
 **E.g.** 
 
 - ./a.out test/print/integers/test.print_expr.oliart
+
+**Note:** There's a pending bug that has to do with the parsing of the forward slash ('/') character. We're working on that fix.
