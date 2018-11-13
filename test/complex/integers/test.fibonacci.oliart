@@ -1,0 +1,23 @@
+program uno
+{
+    var a: int;
+    var b: int;
+    var c: int;
+    var tmp: int;
+    var n: int
+}
+{   
+    set a 1;
+    set b 1;
+
+    while(n < 8)
+    {
+        set c a + b;
+        set tmp a;
+        set a a + b;
+        set b tmp;
+        set n n + 1;
+    }
+
+    print c;
+}
