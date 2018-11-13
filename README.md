@@ -6,16 +6,16 @@ Interpreter project for the Compiler Design class
 - flex <LEX_FILE_NAME.lex>
 - bison -d [-t] <Y_FILE_NAME.y>
 - gcc lex.yy.c <TAB.C_FILE_NAME> -ll
-- ./a.out
+- ./a.out <INPUT_FILE_NAME>
 
 > **Note:** the "-ll" flag is "-lfl" in Windows. The "-t" flag is the trace flag.
 
 **E.g.**
 
-flex interpreter.lex
-bison -d interpreter.y
-gcc lex.yy.c interpreter.tab.c -ll
-./a.out
+- flex interpreter.lex
+- bison -d interpreter.y
+- gcc lex.yy.c interpreter.tab.c -ll
+- ./a.out my_program_source_code.txt
 
 # Instructions for running a test
 
