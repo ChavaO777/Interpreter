@@ -24,4 +24,4 @@ Interpreter project for the Compiler Design class
 
 **E.g.** 
 
-./a.out test/print/integers/test.print_expr.oliart
+- ./a.out   test/print/integers/test.print_expr.oliart
