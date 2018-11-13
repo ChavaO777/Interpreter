@@ -26,22 +26,6 @@ extern FILE *yyin;
 
 double doubleVal;
 
-// #define SYMBOL_TYPE_FUNCTION                  3
-
-// enum symbolTableNodeType{
-
-//   INTEGER_NUMBER_VALUE,
-//   FLOATING_POINT_NUMBER_VALUE
-//   // FUNCTION
-// };
-
-// char* symbolTableNodeTypeName[] = { 
-
-//   "INTEGER_NUMBER_VALUE",
-//   "FLOATING_POINT_NUMBER_VALUE"
-//   // "FUNCTION"
-// };
-
 // Enum for identifying the parent node of each node in the syntax tree.
 // This enum must be in sync with the SyntaxTreeNodeTypeName array.
 enum SyntaxTreeNodeType { 
@@ -237,36 +221,19 @@ void printSymbolTable();
 %type <treeVal> IDENTIFIER
 %type <treeVal> SYMBOL_LT_PARENTHESES
 %type <treeVal> SYMBOL_RT_PARENTHESES
-//%type <intVal> INTEGER_NUMBER
-//%type <doubleVal> FLOATING_POINT_NUMBER
 %%
-
-// exp : expr FINEXP    { printf("Valor: %d\n", $1); }
-// ;
-
-// expr : expr SUMA term             { $$ = $1 + $3; } 
-//      | expr RESTA term            { $$ = $1 + $3; }
-//      | expr SYMBOL_MODULO term    { $$ = $1 % $3; } 
-//      | term                       { $$ = $1; }
-// ;
-
-// factor : PARENI expr PAREND  { $$ = $2; }
-//        | NUM                 { $$ = $1; }
-// ; 
-
-// term : term MULTI factor              { $$ = $1 * $3; } 
-//      | term DIVIDE factor             { $$ = $1 / $3; } 
-//      | term SYMBOL_EXPONENT factor    { $$ = pow($1, $3); }
-//      | factor                         { $$ = $1; } 
-// ;
 
 prog : RES_WORD_PROGRAM IDENTIFIER SYMBOL_LT_BRACKET opt_decls SYMBOL_RT_BRACKET stmt 
       {
         struct SyntaxTreeNode* syntaxTreeRoot;
         syntaxTreeRoot = createNode(NOTHING, NOTHING, NULL, PROGRAM, NOTHING, $6, NULL, NULL, NULL, NULL);
+        printf("########## START OF SYNTAX TREE ##########\n");
         printTree(syntaxTreeRoot);
+        printf("########## END OF SYNTAX TREE ##########\n");
         printSymbolTable();
+        printf("########## START OF PROGRAM OUTPUT ##########\n");
         traverseTree(syntaxTreeRoot);
+        printf("########## END OF PROGRAM OUTPUT ##########\n");
       }
 ;
 
@@ -341,9 +308,6 @@ iter_stmt : RES_WORD_WHILE SYMBOL_LT_PARENTHESES expresion SYMBOL_RT_PARENTHESES
             struct SyntaxTreeNode* ltNode = createNode(NOTHING, NOTHING, NULL, LEQ, EXPRESION, idNode, $6, NULL, NULL, NULL);
             struct SyntaxTreeNode* stepNode = createNode(NOTHING, NOTHING, NULL, PLUS, EXPR, idNode, $8, NULL, NULL, NULL);
             struct SyntaxTreeNode* setNode2 = createNode(NOTHING, NOTHING, NULL, SET, FOR, idNode, stepNode, NULL, NULL, NULL);
-            //struct SyntaxTreeNode* toNode = createNode(NOTHING, NOTHING, NULL, TO, FOR, $6, NULL, NULL, NULL, NULL);
-            //struct SyntaxTreeNode* stepNode = createNode(NOTHING, NOTHING, NULL, STEP, FOR, $8, NULL, NULL, NULL, NULL);
-            //struct SyntaxTreeNode* doNode = createNode(NOTHING, NOTHING, NULL, DO, FOR, $10, NULL, NULL, NULL, NULL);
             $$ = createNode(NOTHING, NOTHING, NULL, FOR, ITER_STMT, setNode, ltNode, setNode2, $10, NULL);
           }
 ;
@@ -391,14 +355,11 @@ factor : SYMBOL_LT_PARENTHESES expr SYMBOL_RT_PARENTHESES
        }
        | INTEGER_NUMBER
        {
-          //printf("$1 =%p\n",$1);
-          //printf("value of $1 = %d\n",(int)$1);
-          //$1 stores integer number as a ponter we should cast it before creating node.
+          //$1 stores integer number as a pointer we should cast it before creating node.
           $$ = createNode((int)$1, NOTHING, NULL, INTEGER_NUMBER_VALUE, TERM, NULL, NULL, NULL, NULL, NULL);
        }
        | FLOATING_POINT_NUMBER
        {
-          //printf("Floating point number = %f\n",doubleVal);
           $$ = createNode(NOTHING, doubleVal, NULL, FLOATING_POINT_NUMBER_VALUE, TERM, NULL, NULL, NULL, NULL, NULL);
        }
 ;
@@ -557,7 +518,7 @@ void printSymbolTableNode(struct SymbolTableNode *node){
  */ 
 void printSymbolTable(){
 
-  printf("########## Start of symbol table ##########\n\n");
+  printf("########## START OF SYMBOL TABLE ##########\n\n");
   struct SymbolTableNode *currPtr = symbolTableHead;
 
   while(currPtr != NULL){
@@ -566,7 +527,7 @@ void printSymbolTable(){
     currPtr = currPtr->next;
   }
 
-  printf("########## End of symbol table ##########\n\n");
+  printf("########## END OF SYMBOL TABLE ##########\n\n");
 }
 
 /**
@@ -871,10 +832,6 @@ double func_exprDouble(struct SyntaxTreeNode* exprDoubleNode){
       / func_exprDouble(exprDoubleNode->arrPtr[1]);
   }
 
-  //printf("1 HERE!\n");
-  //printTree(exprIntNode);
-  //printf("2 HERE!\n");
-
   assert(exprDoubleNode->type == ID_VALUE
     || exprDoubleNode-> type == FLOATING_POINT_NUMBER_VALUE);
 
@@ -940,7 +897,7 @@ int exprIsTypeConsistent(struct SyntaxTreeNode* exprNode){
   int intSubTreeNodeCount = computeSubTreeNodeTypeCount(INTEGER_NUMBER_VALUE, exprNode);
   int doubleSubTreeNodeCount = computeSubTreeNodeTypeCount(FLOATING_POINT_NUMBER_VALUE, exprNode);
 
-  printTree(exprNode);
+  // printTree(exprNode);
   // printf("intSubTreeNodeCount: %d; doubleSubTreeNodeCount: %d\n", intSubTreeNodeCount, doubleSubTreeNodeCount);
 
   if(intSubTreeNodeCount > 0 && doubleSubTreeNodeCount == 0)
