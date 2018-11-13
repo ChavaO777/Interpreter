@@ -1,7 +1,9 @@
 program uno
 {
-    
+    var x: float
 }
 {   
-    set x (x + 1);
+    set x 40.0;
+    set x (x + 1.0);
+    print x;
 }

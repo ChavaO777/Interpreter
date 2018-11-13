@@ -1,8 +1,11 @@
 program uno
 {
-    
+    var i: int;
+    var x: int
 }
 {   
+    set x 1;
+
     for set i 2 to 5 step 1 do
     {
         while(2 > 3)

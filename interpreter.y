@@ -835,6 +835,8 @@ double func_exprDouble(struct SyntaxTreeNode* exprDoubleNode){
   assert(exprDoubleNode->type == ID_VALUE
     || exprDoubleNode-> type == FLOATING_POINT_NUMBER_VALUE);
 
+  // handleError(ERROR_CODE_DATA_TYPE_MISMATCH, ERROR_MESSAGE_DATA_TYPE_MISMATCH);
+
   double valToReturn = 0;
 
   if(exprDoubleNode->type == FLOATING_POINT_NUMBER_VALUE){

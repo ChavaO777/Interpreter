@@ -1,7 +1,11 @@
 program uno
 {
-    
+    var x: float;
+    var y: float
 }
 {   
-    set x y;
+    set x -1.0;
+    set y x;
+    print x;
+    print y;
 }

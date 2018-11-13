@@ -1,7 +1,9 @@
 program uno
 {
-    
+    var x: int
 }
 {   
+    set x 10;
     set x 2*x + 3 + 4;
+    print x;
 }
