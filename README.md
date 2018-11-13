@@ -3,6 +3,8 @@ Interpreter project for the Compiler Design class
 
 # Instructions for compiling and running
 
+Execute the following commands in bash:
+
 - flex <LEX_FILE_NAME.lex>
 - bison -d [-t] <Y_FILE_NAME.y>
 - gcc lex.yy.c <TAB.C_FILE_NAME> -ll
@@ -20,7 +22,8 @@ Interpreter project for the Compiler Design class
 # Instructions for running a test
 
 - Compile the project
-- ./a.out <PATH_TO_TEST_NAME>
+- Execute the following command in bash:
+    - ./a.out <PATH_TO_TEST_NAME>
 
 **E.g.** 
 
