@@ -950,11 +950,9 @@ int exprIsTypeConsistent(struct SyntaxTreeNode* exprNode){
     return FLOATING_POINT_NUMBER_VALUE;
 
   // If the control gets here, there is a mistake: types are inconsistent
-
   // Error out and exit!
   handleError(ERROR_CODE_DATA_TYPE_MISMATCH, ERROR_MESSAGE_DATA_TYPE_MISMATCH);
 
-  assert(NULL);
   return 0;
 }
 
