@@ -1,0 +1,7 @@
+program uno
+{
+    
+}
+{   
+    print 3.0 + 2 + 1;
+}

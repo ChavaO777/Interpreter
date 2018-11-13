@@ -837,8 +837,6 @@ int func_exprInt(struct SyntaxTreeNode* exprIntNode){
     assert(currNode->type == INTEGER_NUMBER_VALUE);
     //printSymbolTableNode(currNode);
     valToReturn = currNode->value.intVal;
-  }else if(exprIntNode->type == FLOATING_POINT_NUMBER_VALUE){
-    valToReturn = exprIntNode->value.doubleVal;
   }
 
   return valToReturn;
@@ -858,17 +856,68 @@ double func_exprDouble(struct SyntaxTreeNode* exprDoubleNode){
 }
 
 /**
+ * Function that computes the amount of nodes of a given type in a syntax sub tree.
+ * 
+ * @param nodeType the type of node to count.
+ * @param node a pointer to the root node of the corresponding subtree.
+ * @returns count the amount of nodes of a given type in a syntax sub tree.
+ */ 
+int computeSubTreeNodeTypeCount(int nodeType, struct SyntaxTreeNode* node){
+
+  if(node == NULL)
+    return 0;
+
+  int count = (node->type == nodeType);
+
+  for(int i = 0; i < 4; i++){
+
+    count += computeSubTreeNodeTypeCount(nodeType, node->arrPtr[i]);
+  }
+
+  return count;
+}
+
+int exprIsTypeConsistent(struct SyntaxTreeNode* exprNode){
+
+  // Count the number of subtree nodes of both data type
+  // If the expression is type-consistent, then one of those counts
+  // will be zero
+  int intSubTreeNodeCount = computeSubTreeNodeTypeCount(INTEGER_NUMBER_VALUE, exprNode);
+  int doubleSubTreeNodeCount = computeSubTreeNodeTypeCount(FLOATING_POINT_NUMBER_VALUE, exprNode);
+
+  if(intSubTreeNodeCount > 0 && doubleSubTreeNodeCount == 0)
+    return INTEGER_NUMBER_VALUE;
+
+  else if(intSubTreeNodeCount == 0 && doubleSubTreeNodeCount > 0)
+    return FLOATING_POINT_NUMBER_VALUE;
+
+  // If the control gets here, there is a mistake: types are inconsistent
+  assert(NULL);
+  return 0;
+}
+
+/**
  * Function that determines whether all the terms of a given
- * 'expr' are integers.
+ * 'expr' are integer numbers.
  * 
  * @param exprNode the root node of the expr
  * @returns 1 if all terms are integers. Else, 0.
  */ 
 int isIntegerExpr(struct SyntaxTreeNode* exprNode){
 
-  //TO DO: implement this function
-  
-  return 1;
+  return exprIsTypeConsistent(exprNode) == INTEGER_NUMBER_VALUE;
+}
+
+/**
+ * Function that determines whether all the terms of a given
+ * 'expr' are floating-point numbers.
+ * 
+ * @param exprNode the root node of the expr
+ * @returns 1 if all terms are floating-point numbers. Else, 0.
+ */ 
+int isFloatingPointExpr(struct SyntaxTreeNode* exprNode){
+
+  return exprIsTypeConsistent(exprNode) == FLOATING_POINT_NUMBER_VALUE;
 }
 
 /**
@@ -900,6 +949,7 @@ void func_print(struct SyntaxTreeNode* printNode){
     }
     else{
 
+      assert(isFloatingPointExpr(printNode->arrPtr[0]));
       printf("%lf\n", func_exprDouble(printNode->arrPtr[0]));
     }
   }
@@ -941,6 +991,8 @@ int func_expresion(struct SyntaxTreeNode* expresionNode){
     }
   }
   else{
+
+    assert(isFloatingPointExpr(printNode->arrPtr[0]));
 
     double doubleExpresionLeftSide = func_exprInt(expresionNode->arrPtr[0]);
     int doubleExpresionRightSide = func_exprInt(expresionNode->arrPtr[1]);
@@ -1211,6 +1263,7 @@ void traverseTree(struct SyntaxTreeNode* node){
 
 int yyerror(char const * s) {
   fprintf(stderr, "Error: %s\n", s);
+  return 0;
 }
 
 /**
