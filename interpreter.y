@@ -868,8 +868,8 @@ int computeSubTreeNodeTypeCount(int nodeType, struct SyntaxTreeNode* node){
     return 0;
 
   int count = (node->type == nodeType);
-
-  for(int i = 0; i < 4; i++){
+  int i = 0;
+  for(i = 0; i < 4; i++){
 
     count += computeSubTreeNodeTypeCount(nodeType, node->arrPtr[i]);
   }
@@ -884,6 +884,8 @@ int exprIsTypeConsistent(struct SyntaxTreeNode* exprNode){
   // will be zero
   int intSubTreeNodeCount = computeSubTreeNodeTypeCount(INTEGER_NUMBER_VALUE, exprNode);
   int doubleSubTreeNodeCount = computeSubTreeNodeTypeCount(FLOATING_POINT_NUMBER_VALUE, exprNode);
+
+  printf("int: %d   double: %d",intSubTreeNodeCount,doubleSubTreeNodeCount);
 
   if(intSubTreeNodeCount > 0 && doubleSubTreeNodeCount == 0)
     return INTEGER_NUMBER_VALUE;
@@ -992,7 +994,7 @@ int func_expresion(struct SyntaxTreeNode* expresionNode){
   }
   else{
 
-    assert(isFloatingPointExpr(printNode->arrPtr[0]));
+    assert(isFloatingPointExpr(expresionNode->arrPtr[0]));
 
     double doubleExpresionLeftSide = func_exprInt(expresionNode->arrPtr[0]);
     int doubleExpresionRightSide = func_exprInt(expresionNode->arrPtr[1]);
