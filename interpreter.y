@@ -431,11 +431,13 @@ expresion : expr SYMBOL_LT expr
 #define ERROR_CODE_SYMBOL_NOT_FOUND                                         1
 #define ERROR_CODE_INVALID_ASSIGNMENT_TO_INT_SYMBOL                         2
 #define ERROR_CODE_INVALID_ASSIGNMENT_TO_FLOATING_POINT_SYMBOL              3
+#define ERROR_CODE_DATA_TYPE_MISMATCH                                       4
 
 // Error messages
 #define ERROR_MESSAGE_SYMBOL_NOT_FOUND                                      "Attempted to retrieve a non-existent symbol."
 #define ERROR_MESSAGE_INVALID_ASSIGNMENT_TO_INT_SYMBOL                      "Attempted to assign an integer value to a symbol storing a floating-point value."
 #define ERROR_MESSAGE_INVALID_ASSIGNMENT_TO_FLOATING_POINT_SYMBOL           "Attempted to assign a floating-point value to a symbol storing an integer value."
+#define ERROR_MESSAGE_DATA_TYPE_MISMATCH                                    "Attempted to perform an operation with more than one data type."
 
 void handleError(int errorCode, char *errorMessage){
 
@@ -948,6 +950,10 @@ int exprIsTypeConsistent(struct SyntaxTreeNode* exprNode){
     return FLOATING_POINT_NUMBER_VALUE;
 
   // If the control gets here, there is a mistake: types are inconsistent
+
+  // Error out and exit!
+  handleError(ERROR_CODE_DATA_TYPE_MISMATCH, ERROR_MESSAGE_DATA_TYPE_MISMATCH);
+
   assert(NULL);
   return 0;
 }
