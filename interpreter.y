@@ -816,10 +816,6 @@ int func_exprInt(struct SyntaxTreeNode* exprIntNode){
       / func_exprInt(exprIntNode->arrPtr[1]);
   }
 
-  //printf("1 HERE!\n");
-  //printTree(exprIntNode);
-  //printf("2 HERE!\n");
-
   assert(exprIntNode->type == INTEGER_NUMBER_VALUE
     || exprIntNode->type == ID_VALUE
     || exprIntNode-> type == FLOATING_POINT_NUMBER_VALUE);
@@ -883,7 +879,8 @@ int computeSubTreeNodeTypeCount(int nodeType, struct SyntaxTreeNode* node){
       count++;
   }
 
-  for(int i = 0; i < 4; i++){
+  int i = 0;
+  for(i = 0; i < 4; i++){
 
     count += computeSubTreeNodeTypeCount(nodeType, node->arrPtr[i]);
   }
@@ -898,6 +895,9 @@ int exprIsTypeConsistent(struct SyntaxTreeNode* exprNode){
   // will be zero
   int intSubTreeNodeCount = computeSubTreeNodeTypeCount(INTEGER_NUMBER_VALUE, exprNode);
   int doubleSubTreeNodeCount = computeSubTreeNodeTypeCount(FLOATING_POINT_NUMBER_VALUE, exprNode);
+
+  printTree(exprNode);
+  printf("intSubTreeNodeCount: %d; doubleSubTreeNodeCount: %d\n", intSubTreeNodeCount, doubleSubTreeNodeCount);
 
   if(intSubTreeNodeCount > 0 && doubleSubTreeNodeCount == 0)
     return INTEGER_NUMBER_VALUE;
@@ -983,6 +983,8 @@ int func_expresion(struct SyntaxTreeNode* expresionNode){
 
   if(isIntegerExpr(expresionNode->arrPtr[0])){
 
+    // Assert that the second 'expr' term also contains an integer expression
+    assert(isIntegerExpr(expresionNode->arrPtr[1]));
     int intExpresionLeftSide = func_exprInt(expresionNode->arrPtr[0]);
     int intExpresionRightSide = func_exprInt(expresionNode->arrPtr[1]);
 
@@ -1007,6 +1009,9 @@ int func_expresion(struct SyntaxTreeNode* expresionNode){
   else{
 
     assert(isFloatingPointExpr(expresionNode->arrPtr[0]));
+
+    // Assert that the second 'expr' term also contains an floating-point expression
+    assert(isFloatingPointExpr(expresionNode->arrPtr[1]));
 
     double doubleExpresionLeftSide = func_exprDouble(expresionNode->arrPtr[0]);
     int doubleExpresionRightSide = func_exprDouble(expresionNode->arrPtr[1]);

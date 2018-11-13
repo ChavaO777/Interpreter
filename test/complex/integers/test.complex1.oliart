@@ -6,11 +6,11 @@ program uno
 }
 {   
     set x 5*2;
-    set y 10/2;
+    set y 10;
 
     print y;
 
-    if(x < 10){
+    if(x < 11){
 	    for set i 0 to 5 step 1 do
 	    {
 		print i;
