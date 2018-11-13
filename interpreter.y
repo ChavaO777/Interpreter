@@ -817,8 +817,7 @@ int func_exprInt(struct SyntaxTreeNode* exprIntNode){
   }
 
   assert(exprIntNode->type == INTEGER_NUMBER_VALUE
-    || exprIntNode->type == ID_VALUE
-    || exprIntNode-> type == FLOATING_POINT_NUMBER_VALUE);
+    || exprIntNode->type == ID_VALUE);
 
   int valToReturn = 0;
 
@@ -846,8 +845,51 @@ int func_exprInt(struct SyntaxTreeNode* exprIntNode){
  * is evaluated.
  */ 
 double func_exprDouble(struct SyntaxTreeNode* exprDoubleNode){
+  // If we enter an EXPR node, we must at least one term.
+  assert(exprDoubleNode != NULL);
 
-  return 0.0;
+  if(exprDoubleNode->type == PLUS){
+
+    return func_exprDouble(exprDoubleNode->arrPtr[0]) 
+      + func_exprDouble(exprDoubleNode->arrPtr[1]);
+  }
+  else if(exprDoubleNode->type == MINUS){
+
+    return func_exprDouble(exprDoubleNode->arrPtr[0]) 
+      - func_exprDouble(exprDoubleNode->arrPtr[1]);
+  }
+  else if(exprDoubleNode->type == STAR){
+
+    return func_exprDouble(exprDoubleNode->arrPtr[0]) 
+      * func_exprDouble(exprDoubleNode->arrPtr[1]);
+  }
+  else if(exprDoubleNode->type == FORWARD_SLASH){
+
+    return func_exprDouble(exprDoubleNode->arrPtr[0]) 
+      / func_exprDouble(exprDoubleNode->arrPtr[1]);
+  }
+
+  //printf("1 HERE!\n");
+  //printTree(exprIntNode);
+  //printf("2 HERE!\n");
+
+  assert(exprDoubleNode->type == ID_VALUE
+    || exprDoubleNode-> type == FLOATING_POINT_NUMBER_VALUE);
+
+  double valToReturn = 0;
+
+  if(exprDoubleNode->type == FLOATING_POINT_NUMBER_VALUE){
+    valToReturn = exprDoubleNode->value.doubleVal;
+  }
+  else if(exprDoubleNode->type == ID_VALUE){
+
+    struct SymbolTableNode *currNode = retrieveFromSymbolTable(exprDoubleNode->value.idName);
+    assert(currNode->type == FLOATING_POINT_NUMBER_VALUE);
+    //printSymbolTableNode(currNode);
+    valToReturn = currNode->value.doubleVal;
+  }
+
+  return valToReturn;
 }
 
 /**
@@ -1123,6 +1165,7 @@ void func_set(struct SyntaxTreeNode* setNode){
   assert(currNode != NULL);
 
   int exprValueToSet;
+  double exprDoubleValueToSet;
 
   switch(currNode->type){
 
@@ -1134,7 +1177,10 @@ void func_set(struct SyntaxTreeNode* setNode){
       break;
 
     case FLOATING_POINT_NUMBER_VALUE:
-
+      exprDoubleValueToSet = func_exprDouble(setNode->arrPtr[1]);
+      setDoubleValueToSymbol(currNode->name, exprDoubleValueToSet);
+      //printSymbolTableNode(currNode);
+      assert(exprDoubleValueToSet == currNode->value.doubleVal);
       break;
   }
 }
@@ -1155,6 +1201,21 @@ int readInteger(){
 }
 
 /**
+ * Function to read a double and assert that the 
+ * reading was successful.
+ * 
+ * @returns doubleVal the double read
+ */ 
+double readDouble(){
+
+  double doubleVal = -1.0;
+  printf("Insert an floating point number: ");
+  double scanfReturnValue = scanf("%lf", &doubleVal);
+  assert(scanfReturnValue > 0);
+  return doubleVal;
+}
+
+/**
  * Function that handles 'read' terms.
  * 
  * @param readNode the root node of the 'read' term.
@@ -1168,18 +1229,22 @@ void func_read(struct SyntaxTreeNode* readNode){
   struct SymbolTableNode* currNode = retrieveFromSymbolTable(readNode->arrPtr[0]->value.idName);
 
   int valueToSet;
+  double doubleValueToSet;
 
   switch(currNode->type){
 
     case INTEGER_NUMBER_VALUE:
       valueToSet = readInteger();
       setIntValueToSymbol(currNode->name, valueToSet);
-      printSymbolTableNode(currNode);
+      //printSymbolTableNode(currNode);
       assert(valueToSet == currNode->value.intVal);
       break;
 
     case FLOATING_POINT_NUMBER_VALUE:
-
+      doubleValueToSet = readDouble();
+      setDoubleValueToSymbol(currNode->name, doubleValueToSet);
+      //printSymbolTableNode(currNode);
+      assert(doubleValueToSet == currNode->value.doubleVal);
       break;
   }
 }
