@@ -227,13 +227,13 @@ prog : RES_WORD_PROGRAM IDENTIFIER SYMBOL_LT_BRACKET opt_decls SYMBOL_RT_BRACKET
       {
         struct SyntaxTreeNode* syntaxTreeRoot;
         syntaxTreeRoot = createNode(NOTHING, NOTHING, NULL, PROGRAM, NOTHING, $6, NULL, NULL, NULL, NULL);
-        printf("########## START OF SYNTAX TREE ##########\n");
+        printf("########## START OF SYNTAX TREE ##########\n\n");
         printTree(syntaxTreeRoot);
-        printf("########## END OF SYNTAX TREE ##########\n");
+        printf("########## END OF SYNTAX TREE ##########\n\n");
         printSymbolTable();
-        printf("########## START OF PROGRAM OUTPUT ##########\n");
+        printf("########## START OF PROGRAM OUTPUT ##########\n\n");
         traverseTree(syntaxTreeRoot);
-        printf("########## END OF PROGRAM OUTPUT ##########\n");
+        printf("########## END OF PROGRAM OUTPUT ##########\n\n");
       }
 ;
 
