@@ -591,9 +591,17 @@ void printSymbolTableNode(struct SymbolTableNode *node){
     case FUNCTION_VALUE:
 
       assert(node->returnType < sizeof(SyntaxTreeNodeTypeName));
-      printf("Return type: %s\n", SyntaxTreeNodeTypeName[node->returnType]);
-      printf("Function Syntax Tree Root Node: %p\n", node->ptrFunctionSyntaxTreeRootNode);
+      printf("Return type: %s", SyntaxTreeNodeTypeName[node->returnType]);
+      
       printf("Function Symbol Table Node: %p\n", node->ptrFunctionSymbolTableNode);
+      printf("########## START OF SYMBOL TABLE ##########\n\n");
+      printSymbolTableNode(node->ptrFunctionSymbolTableNode);
+      printf("########## END OF SYMBOL TABLE ##########\n\n");
+
+      printf("Function Syntax Tree Root Node: %p\n", node->ptrFunctionSyntaxTreeRootNode);
+      printf("########## START OF SYNTAX TREE ##########\n\n");
+      printTree(node->ptrFunctionSyntaxTreeRootNode);
+      printf("########## END OF SYNTAX TREE ##########\n\n");
 
       break;
   }
