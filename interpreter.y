@@ -61,7 +61,8 @@ enum SyntaxTreeNodeType {
   GEQ, 
   INTEGER_NUMBER_VALUE, 
   FLOATING_POINT_NUMBER_VALUE, 
-  ID_VALUE
+  ID_VALUE,
+  FUNCTION_VALUE
 };
 
 // Array of the names of the syntax tree node types.
@@ -99,7 +100,8 @@ char* SyntaxTreeNodeTypeName[] = {
   "GEQ", 
   "INTEGER_NUMBER_VALUE", 
   "FLOATING_POINT_NUMBER_VALUE", 
-  "ID_VALUE"
+  "ID_VALUE",
+  "FUNCTION_VALUE"
 };
 
 // Declaration of the createNode function.
@@ -415,13 +417,24 @@ struct SymbolTableNode {
   // This attribute represents the data type stored by this symbol: 
   // int, float or pointer to function (for later).
   int type;
+  int returnType;
   union {
 
+    // Functions use the intVal or doubleVal fields
+    // for storing the return value (in case it exists).
     int intVal; /* Integer value */
     double doubleVal; /* Floating-point value */
-    // struct node* ptrFunction; // For later
   } value;
 
+  // Pointer to the syntax tree of the function, in case this is a 
+  // function node. Whenever the function is called, this separate 
+  // syntax tree will be traversed.
+  struct SyntaxTreeNode *ptrFunctionSyntaxTreeRootNode; 
+  // Pointer to the symbol table of the function, in case this is a
+  // function node. This symbol table will contain both the list of 
+  // parameters to this function and the list of variables declared
+  // inside this function.
+  struct SymbolTableNode *ptrFunctionSymbolTableNode; 
   struct SymbolTableNode *next;
 };
 

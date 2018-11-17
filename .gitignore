@@ -3,6 +3,8 @@
 *.yy.c
 *~
 
+.DS_Store
+
 .vscode
 
 # Prerequisites
