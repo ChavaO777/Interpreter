@@ -124,7 +124,7 @@ void printTree(struct SyntaxTreeNode*);
 void traverseTree(struct SyntaxTreeNode*);
 
 // Declaration of the insertToSymbolTable function.
-struct SymbolTableNode* insertToSymbolTable(char const *, int);
+struct SymbolTableNode* insertToSymbolTable(char const *, int, int, struct SyntaxTreeNode*, struct SymbolTableNode*);
 
 // Declaration of the head of the linked list representing the symbol table.
 struct SymbolTableNode *symbolTableHead;
@@ -252,12 +252,12 @@ decls : dec SYMBOL_SEMICOLON decls
 dec : RES_WORD_VAR IDENTIFIER SYMBOL_COLON RES_WORD_INT
     {
       // printf("id name = %s\n", (char*)$2);
-      symbolTableHead = insertToSymbolTable((char*)$2, INTEGER_NUMBER_VALUE);
+      symbolTableHead = insertToSymbolTable((char*)$2, INTEGER_NUMBER_VALUE, NOTHING, NULL, NULL);
     }
     | RES_WORD_VAR IDENTIFIER SYMBOL_COLON RES_WORD_FLOAT
     {
       // printf("id name = %s\n", (char*)$2);
-      symbolTableHead = insertToSymbolTable((char*)$2, FLOATING_POINT_NUMBER_VALUE);
+      symbolTableHead = insertToSymbolTable((char*)$2, FLOATING_POINT_NUMBER_VALUE, NOTHING, NULL, NULL);
     }
 ;
 
@@ -446,7 +446,7 @@ struct SymbolTableNode {
  * @returns a pointer to the new node, which will now be the head of the linked list that 
  * represents the symbol table.
  */ 
-struct SymbolTableNode* insertToSymbolTable(char const *symbolName, int symbolType){
+struct SymbolTableNode* insertToSymbolTable(char const *symbolName, int symbolType, int symbolReturnType, struct SyntaxTreeNode *ptrFunctionSyntaxTreeRootNode, struct SymbolTableNode *ptrFunctionSymbolTableNode){
 
   // Malloc for the new node
   struct SymbolTableNode* newNodePtr = (struct SymbolTableNode*) malloc(sizeof(struct SymbolTableNode));
@@ -456,9 +456,13 @@ struct SymbolTableNode* insertToSymbolTable(char const *symbolName, int symbolTy
   strcpy (newNodePtr->name, symbolName);
   newNodePtr->type = symbolType;
 
+  newNodePtr->returnType = symbolReturnType;
+
   // Set the default values to 0
   newNodePtr->value.intVal = 0;
-  newNodePtr->value.doubleVal = 0.0;
+
+  newNodePtr->ptrFunctionSyntaxTreeRootNode = ptrFunctionSyntaxTreeRootNode;
+  newNodePtr->ptrFunctionSymbolTableNode = ptrFunctionSymbolTableNode;
 
   // Insert at the beginning of the list
   newNodePtr->next = (struct SymbolTableNode*)symbolTableHead;
@@ -519,6 +523,15 @@ void printSymbolTableNode(struct SymbolTableNode *node){
     case FLOATING_POINT_NUMBER_VALUE:
 
       printf("Value: %lf\n", node->value.doubleVal);
+      break;
+
+    case FUNCTION_VALUE:
+
+      assert(node->returnType < sizeof(SyntaxTreeNodeTypeName));
+      printf("Return type: %s", SyntaxTreeNodeTypeName[node->returnType]);
+      printf("Function Syntax Tree Root Node: %p\n", node->ptrFunctionSyntaxTreeRootNode);
+      printf("Function Symbol Table Node: %p\n", node->ptrFunctionSymbolTableNode);
+
       break;
   }
 
