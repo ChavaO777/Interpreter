@@ -120,13 +120,16 @@ struct SyntaxTreeNode* createNode(
   struct SyntaxTreeNode*);
 
 // Declaration of the printTree function.
+void startTreePrinting(struct SyntaxTreeNode*, char*);
+
+// Declaration of the printTree function.
 void printTree(struct SyntaxTreeNode*);
 
 // Declaration of the traverseTree function.
 void traverseTree(struct SyntaxTreeNode*);
 
 // Declaration of the insertToSymbolTable function.
-struct SymbolTableNode* insertToSymbolTable(char const *, int, int, struct SymbolTableNode*, struct SyntaxTreeNode*);
+void insertToSymbolTable(struct SymbolTableNode**, char const *, int, int, struct SymbolTableNode*, struct SyntaxTreeNode*);
 
 // Declaration of the head of the linked list representing the symbol table.
 struct SymbolTableNode *symbolTableHead;
@@ -135,7 +138,7 @@ struct SymbolTableNode *symbolTableHead;
 struct SymbolTableNode *functionSymbolTableHead;
 
 // Declaration of the printSymbolTable function.
-void printSymbolTable();
+void printSymbolTable(struct SymbolTableNode *, char*);
 %}
 
 /**
@@ -239,10 +242,8 @@ prog : RES_WORD_PROGRAM IDENTIFIER SYMBOL_LT_BRACKET opt_decls opt_fun_decls SYM
       {
         struct SyntaxTreeNode* syntaxTreeRoot;
         syntaxTreeRoot = createNode(NOTHING, NOTHING, NULL, PROGRAM, NOTHING, $7, NULL, NULL, NULL, NULL);
-        printf("########## START OF SYNTAX TREE ##########\n\n");
-        printTree(syntaxTreeRoot);
-        printf("########## END OF SYNTAX TREE ##########\n\n");
-        printSymbolTable();
+        startTreePrinting(syntaxTreeRoot, "main");
+        printSymbolTable(symbolTableHead, "main");
         printf("########## START OF PROGRAM OUTPUT ##########\n\n");
         traverseTree(syntaxTreeRoot);
         printf("########## END OF PROGRAM OUTPUT ##########\n\n");
@@ -320,7 +321,7 @@ decls_for_function : dec_for_function SYMBOL_SEMICOLON decls_for_function
 dec_for_function : RES_WORD_VAR IDENTIFIER SYMBOL_COLON tipo
                 {
                   // printf("id name = %s\n", (char*)$2);
-                  functionSymbolTableHead = insertToSymbolTable((char*)$2, $4, NOTHING, NULL, NULL);
+                  insertToSymbolTable(&functionSymbolTableHead, (char*)$2, $4, NOTHING, NULL, NULL);
                 }
 ;
 
@@ -564,6 +565,9 @@ struct SymbolTableNode* retrieveFromSymbolTable(char const *symbolName){
  */ 
 void printSymbolTableNode(struct SymbolTableNode *node){
 
+  if(node == NULL)
+    return;
+
   printf("Address: %p\n", node);
   printf("Symbol: %s\n", node->name);
 
@@ -591,17 +595,9 @@ void printSymbolTableNode(struct SymbolTableNode *node){
     case FUNCTION_VALUE:
 
       assert(node->returnType < sizeof(SyntaxTreeNodeTypeName));
-      printf("Return type: %s", SyntaxTreeNodeTypeName[node->returnType]);
-      
-      printf("Function Symbol Table Node: %p\n", node->ptrFunctionSymbolTableNode);
-      printf("########## START OF SYMBOL TABLE ##########\n\n");
-      printSymbolTableNode(node->ptrFunctionSymbolTableNode);
-      printf("########## END OF SYMBOL TABLE ##########\n\n");
-
-      printf("Function Syntax Tree Root Node: %p\n", node->ptrFunctionSyntaxTreeRootNode);
-      printf("########## START OF SYNTAX TREE ##########\n\n");
-      printTree(node->ptrFunctionSyntaxTreeRootNode);
-      printf("########## END OF SYNTAX TREE ##########\n\n");
+      printf("Return type: %s\n\n", SyntaxTreeNodeTypeName[node->returnType]);
+      printSymbolTable(node->ptrFunctionSymbolTableNode, node->name);
+      startTreePrinting(node->ptrFunctionSyntaxTreeRootNode, node->name);
 
       break;
   }
@@ -613,10 +609,10 @@ void printSymbolTableNode(struct SymbolTableNode *node){
 /**
  * Function to print the symbol table
  */ 
-void printSymbolTable(){
+void printSymbolTable(struct SymbolTableNode* ptrTableHead, char* tableName){
 
-  printf("########## START OF SYMBOL TABLE ##########\n\n");
-  struct SymbolTableNode *currPtr = symbolTableHead;
+  printf("########## START OF SYMBOL TABLE OF THE %s FUNCTION ##########\n\n", tableName);
+  struct SymbolTableNode *currPtr = ptrTableHead;
 
   while(currPtr != NULL){
 
@@ -624,7 +620,7 @@ void printSymbolTable(){
     currPtr = currPtr->next;
   }
 
-  printf("########## END OF SYMBOL TABLE ##########\n\n");
+  printf("########## END OF SYMBOL TABLE OF THE %s FUNCTION ##########\n\n", tableName);
 }
 
 /**
@@ -800,6 +796,18 @@ void printNodeType(int type, char* label){
 
     printf("%s: %d\n", label, type);
   }
+}
+
+/**
+ * Function that starts the printing a given node of a syntax tree root node
+ * 
+ * @param syntaxTreeRootNode the root node of the tree to be printed.
+ */ 
+void startTreePrinting(struct SyntaxTreeNode* syntaxTreeRootNode, char* functionName){
+
+  printf("########## START OF SYNTAX TREE OF THE %s FUNCTION ##########\n\n", functionName);
+  printTree(syntaxTreeRootNode);
+  printf("########## END OF SYNTAX TREE OF THE %s FUNCTION ##########\n\n", functionName);
 }
 
 /**
