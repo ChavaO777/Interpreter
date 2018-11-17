@@ -182,6 +182,7 @@ void printSymbolTable();
 %token SYMBOL_EQ 
 %token SYMBOL_LEQ
 %token SYMBOL_GEQ
+%token RES_WORD_FUN
 
 // Types
 %type <treeVal> prog
@@ -223,6 +224,7 @@ void printSymbolTable();
 %type <treeVal> IDENTIFIER
 %type <treeVal> SYMBOL_LT_PARENTHESES
 %type <treeVal> SYMBOL_RT_PARENTHESES
+%type <intVal> tipo
 %%
 
 prog : RES_WORD_PROGRAM IDENTIFIER SYMBOL_LT_BRACKET opt_decls SYMBOL_RT_BRACKET stmt 
@@ -239,7 +241,7 @@ prog : RES_WORD_PROGRAM IDENTIFIER SYMBOL_LT_BRACKET opt_decls SYMBOL_RT_BRACKET
       }
 ;
 
-// ########### START of the rules for DECLARATIONS OF VARIABLES ###########
+// ########### START of the rules for DECLARATIONS OF VARIABLES OF THE MAIN FUNCTION ###########
 // Declarations are not part of the syntax tree node
 opt_decls : decls
           | /* epsilon */
@@ -249,23 +251,58 @@ decls : dec SYMBOL_SEMICOLON decls
       | dec
 ;
 
-dec : RES_WORD_VAR IDENTIFIER SYMBOL_COLON RES_WORD_INT
+dec : RES_WORD_VAR IDENTIFIER SYMBOL_COLON tipo
     {
       // printf("id name = %s\n", (char*)$2);
-      symbolTableHead = insertToSymbolTable((char*)$2, INTEGER_NUMBER_VALUE, NOTHING, NULL, NULL);
-    }
-    | RES_WORD_VAR IDENTIFIER SYMBOL_COLON RES_WORD_FLOAT
-    {
-      // printf("id name = %s\n", (char*)$2);
-      symbolTableHead = insertToSymbolTable((char*)$2, FLOATING_POINT_NUMBER_VALUE, NOTHING, NULL, NULL);
+      symbolTableHead = insertToSymbolTable((char*)$2, $4, NOTHING, NULL, NULL);
     }
 ;
 
-// tipo : RES_WORD_INT
-//      | RES_WORD_FLOAT
-// ;
+tipo : RES_WORD_INT
+     {
+       $$ = INTEGER_NUMBER_VALUE;
+     }
+     | RES_WORD_FLOAT
+     {
+       $$ = FLOATING_POINT_NUMBER_VALUE;
+     }
+;
 
 // ########### END of the rules for DECLARATIONS OF VARIABLES ###########
+
+// ########### START of the rules for DECLARATIONS OF VARIABLES OF OTHER FUNCTIONS ###########
+
+// fun_opt_decls : fun_decls
+//           | /* epsilon */
+// ;
+
+// fun_decls : fun_dec SYMBOL_SEMICOLON fun_decls 
+//       | fun_dec
+// ;
+
+// fun_dec : RES_WORD_VAR IDENTIFIER SYMBOL_COLON RES_WORD_INT
+//     {
+//       // printf("id name = %s\n", (char*)$2);
+//     }
+//     | RES_WORD_VAR IDENTIFIER SYMBOL_COLON RES_WORD_FLOAT
+//     {
+//       // printf("id name = %s\n", (char*)$2);
+//     }
+// ;
+
+// ########### END of the rules for DECLARATIONS OF OTHER VARIABLES ###########
+
+// opt_fun_decls : fun_decls
+//               | /* epsilon */
+
+// fun_decls : fun_decls fun_dec
+//           | fun_dec
+
+// fun_dec : RES_WORD_FUN IDENTIFIER SYMBOL_LT_PARENTHESES oparams SYMBOL_RT_PARENTHESES SYMBOL_COLON RES_WORD_INT SYMBOL_LT_BRACKET fun_opt_decls SYMBOL_RT_BRACKET stmt
+//         {
+//           // printf("id name = %s\n", (char*)$2);
+//           symbolTableHead = insertToSymbolTable((char*)$2, FUNCTION_VALUE, NOTHING, NULL, NULL);
+//         }
 
 stmt : assign_stmt { $$ = $1; }
      | if_stmt { $$ = $1; }

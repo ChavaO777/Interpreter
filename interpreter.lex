@@ -52,6 +52,7 @@ if                                                      { return RES_WORD_IF; }
 ifelse                                                  { return RES_WORD_IFELSE; }
 int                                                     { return RES_WORD_INT; }
 float                                                   { return RES_WORD_FLOAT; }
+fun                                                     { return RES_WORD_FUN; }
 
 "="                                                     { return SYMBOL_EQ; } /* Symbols */
 "<"                                                     { return SYMBOL_LT; }
