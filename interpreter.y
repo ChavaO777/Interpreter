@@ -262,7 +262,7 @@ decls : dec SYMBOL_SEMICOLON decls
 dec : RES_WORD_VAR IDENTIFIER SYMBOL_COLON tipo
     {
       // printf("id name = %s\n", (char*)$2);
-      symbolTableHead = insertToSymbolTable((char*)$2, $4, NOTHING, NULL, NULL);
+      insertToSymbolTable(&symbolTableHead, (char*)$2, $4, NOTHING, NULL, NULL);
     }
 ;
 
@@ -290,7 +290,7 @@ fun_decls : fun_decls fun_dec
 fun_dec : RES_WORD_FUN IDENTIFIER SYMBOL_LT_PARENTHESES oparams SYMBOL_RT_PARENTHESES SYMBOL_COLON tipo SYMBOL_LT_BRACKET opt_decls_for_function SYMBOL_RT_BRACKET stmt
         {
           // printf("id name = %s\n", (char*)$2);
-          symbolTableHead = insertToSymbolTable((char*)$2, FUNCTION_VALUE, $7, functionSymbolTableHead, $11);
+          insertToSymbolTable(&symbolTableHead, (char*)$2, FUNCTION_VALUE, $7, functionSymbolTableHead, $11);
           functionSymbolTableHead = NULL;
         }
 
@@ -302,7 +302,7 @@ params : param SYMBOL_COMMA params
 
 param : RES_WORD_VAR IDENTIFIER SYMBOL_COLON tipo
       {
-        functionSymbolTableHead = insertToSymbolTable((char*)$2, $4, NOTHING, NULL, NULL);
+        insertToSymbolTable(&functionSymbolTableHead, (char*)$2, $4, NOTHING, NULL, NULL);
       }
 
 // OLIART
@@ -510,7 +510,7 @@ struct SymbolTableNode {
  * @returns a pointer to the new node, which will now be the head of the linked list that 
  * represents the symbol table.
  */ 
-struct SymbolTableNode* insertToSymbolTable(char const *symbolName, int symbolType, int symbolReturnType, struct SymbolTableNode *ptrFunctionSymbolTableNode, struct SyntaxTreeNode *ptrFunctionSyntaxTreeRootNode){
+void insertToSymbolTable(struct SymbolTableNode** ptrPtrTableHead, char const *symbolName, int symbolType, int symbolReturnType, struct SymbolTableNode *ptrFunctionSymbolTableNode, struct SyntaxTreeNode *ptrFunctionSyntaxTreeRootNode){
 
   // Malloc for the new node
   struct SymbolTableNode* newNodePtr = (struct SymbolTableNode*) malloc(sizeof(struct SymbolTableNode));
@@ -529,9 +529,8 @@ struct SymbolTableNode* insertToSymbolTable(char const *symbolName, int symbolTy
   newNodePtr->ptrFunctionSyntaxTreeRootNode = ptrFunctionSyntaxTreeRootNode;
 
   // Insert at the beginning of the list
-  newNodePtr->next = (struct SymbolTableNode*)symbolTableHead;
-
-  return newNodePtr;
+  newNodePtr->next = (struct SymbolTableNode*)(*ptrPtrTableHead);
+  *ptrPtrTableHead = newNodePtr;
 }
 
 /**
