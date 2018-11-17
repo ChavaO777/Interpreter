@@ -69,6 +69,7 @@ fun                                                     { return RES_WORD_FUN; }
 ")"                                                     { return SYMBOL_RT_PARENTHESES; }
 "{"                                                     { return SYMBOL_LT_BRACKET; }
 "}"                                                     { return SYMBOL_RT_BRACKET; }
+","                                                     { return SYMBOL_COMMA; }
 
 ("-")?{DIGIT}*                                          { yylval.intVal = atoi(yytext); return INTEGER_NUMBER; /* Convert the number to INTEGER_NUMBER */}
 

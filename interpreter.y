@@ -187,6 +187,7 @@ void printSymbolTable();
 %token SYMBOL_LEQ
 %token SYMBOL_GEQ
 %token RES_WORD_FUN
+%token SYMBOL_COMMA
 
 // Types
 %type <treeVal> prog
@@ -289,6 +290,18 @@ fun_dec : RES_WORD_FUN IDENTIFIER SYMBOL_LT_PARENTHESES oparams SYMBOL_RT_PARENT
           symbolTableHead = insertToSymbolTable((char*)$2, FUNCTION_VALUE, NOTHING, functionSymbolTableHead, $11);
           functionSymbolTableHead = NULL;
         }
+
+oparams : params
+        | /* epsilon */
+
+params : param SYMBOL_COMMA params
+       | param
+
+param : RES_WORD_VAR IDENTIFIER SYMBOL_COLON tipo
+      {
+        functionSymbolTableHead = insertToSymbolTable((char*)$2, $4, NOTHING, NULL, NULL);
+      }
+
 // OLIART
 
 // COPY OF OTHER RULES, BUT FOR THE CASE OF THE SYMBOL TABLES OF FUNCTIONS
