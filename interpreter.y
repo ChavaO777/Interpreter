@@ -124,10 +124,13 @@ void printTree(struct SyntaxTreeNode*);
 void traverseTree(struct SyntaxTreeNode*);
 
 // Declaration of the insertToSymbolTable function.
-struct SymbolTableNode* insertToSymbolTable(char const *, int, int, struct SyntaxTreeNode*, struct SymbolTableNode*);
+struct SymbolTableNode* insertToSymbolTable(char const *, int, int, struct SymbolTableNode*, struct SyntaxTreeNode*);
 
 // Declaration of the head of the linked list representing the symbol table.
 struct SymbolTableNode *symbolTableHead;
+
+// Declaration of the head of the linked list representing the symbol table of a SPECIFIC FUNCTION (not the main one)
+struct SymbolTableNode *functionSymbolTableHead;
 
 // Declaration of the printSymbolTable function.
 void printSymbolTable();
@@ -147,6 +150,7 @@ void printSymbolTable();
   double doubleVal;
   char* idName;
   struct SyntaxTreeNode* treeVal;
+  struct SymbolTableNode* symbolTableVal;
 }
 
 // Token declarations
@@ -227,10 +231,10 @@ void printSymbolTable();
 %type <intVal> tipo
 %%
 
-prog : RES_WORD_PROGRAM IDENTIFIER SYMBOL_LT_BRACKET opt_decls SYMBOL_RT_BRACKET stmt 
+prog : RES_WORD_PROGRAM IDENTIFIER SYMBOL_LT_BRACKET opt_decls opt_fun_decls SYMBOL_RT_BRACKET stmt 
       {
         struct SyntaxTreeNode* syntaxTreeRoot;
-        syntaxTreeRoot = createNode(NOTHING, NOTHING, NULL, PROGRAM, NOTHING, $6, NULL, NULL, NULL, NULL);
+        syntaxTreeRoot = createNode(NOTHING, NOTHING, NULL, PROGRAM, NOTHING, $7, NULL, NULL, NULL, NULL);
         printf("########## START OF SYNTAX TREE ##########\n\n");
         printTree(syntaxTreeRoot);
         printf("########## END OF SYNTAX TREE ##########\n\n");
@@ -268,41 +272,43 @@ tipo : RES_WORD_INT
      }
 ;
 
-// ########### END of the rules for DECLARATIONS OF VARIABLES ###########
+// ########### END of the rules for DECLARATIONS OF VARIABLES OF THE MAIN FUNCTION ###########
 
 // ########### START of the rules for DECLARATIONS OF VARIABLES OF OTHER FUNCTIONS ###########
 
-// fun_opt_decls : fun_decls
-//           | /* epsilon */
-// ;
+// OLIART
+opt_fun_decls : fun_decls
+              | /* epsilon */
 
-// fun_decls : fun_dec SYMBOL_SEMICOLON fun_decls 
-//       | fun_dec
-// ;
+fun_decls : fun_decls fun_dec
+          | fun_dec
 
-// fun_dec : RES_WORD_VAR IDENTIFIER SYMBOL_COLON RES_WORD_INT
-//     {
-//       // printf("id name = %s\n", (char*)$2);
-//     }
-//     | RES_WORD_VAR IDENTIFIER SYMBOL_COLON RES_WORD_FLOAT
-//     {
-//       // printf("id name = %s\n", (char*)$2);
-//     }
-// ;
+fun_dec : RES_WORD_FUN IDENTIFIER SYMBOL_LT_PARENTHESES oparams SYMBOL_RT_PARENTHESES SYMBOL_COLON tipo SYMBOL_LT_BRACKET opt_decls_for_function SYMBOL_RT_BRACKET stmt
+        {
+          // printf("id name = %s\n", (char*)$2);
+          symbolTableHead = insertToSymbolTable((char*)$2, FUNCTION_VALUE, NOTHING, functionSymbolTableHead, $11);
+          functionSymbolTableHead = NULL;
+        }
+// OLIART
 
-// ########### END of the rules for DECLARATIONS OF OTHER VARIABLES ###########
+// COPY OF OTHER RULES, BUT FOR THE CASE OF THE SYMBOL TABLES OF FUNCTIONS
 
-// opt_fun_decls : fun_decls
-//               | /* epsilon */
+opt_decls_for_function : decls_for_function
+                        | /* epsilon */
+;
 
-// fun_decls : fun_decls fun_dec
-//           | fun_dec
+decls_for_function : dec_for_function SYMBOL_SEMICOLON decls_for_function 
+                    | dec_for_function
+;
 
-// fun_dec : RES_WORD_FUN IDENTIFIER SYMBOL_LT_PARENTHESES oparams SYMBOL_RT_PARENTHESES SYMBOL_COLON RES_WORD_INT SYMBOL_LT_BRACKET fun_opt_decls SYMBOL_RT_BRACKET stmt
-//         {
-//           // printf("id name = %s\n", (char*)$2);
-//           symbolTableHead = insertToSymbolTable((char*)$2, FUNCTION_VALUE, NOTHING, NULL, NULL);
-//         }
+dec_for_function : RES_WORD_VAR IDENTIFIER SYMBOL_COLON tipo
+                {
+                  // printf("id name = %s\n", (char*)$2);
+                  functionSymbolTableHead = insertToSymbolTable((char*)$2, $4, NOTHING, NULL, NULL);
+                }
+;
+
+// ########### END of the rules for DECLARATIONS OF OTHER FUNCTIONS ###########
 
 stmt : assign_stmt { $$ = $1; }
      | if_stmt { $$ = $1; }
@@ -483,7 +489,7 @@ struct SymbolTableNode {
  * @returns a pointer to the new node, which will now be the head of the linked list that 
  * represents the symbol table.
  */ 
-struct SymbolTableNode* insertToSymbolTable(char const *symbolName, int symbolType, int symbolReturnType, struct SyntaxTreeNode *ptrFunctionSyntaxTreeRootNode, struct SymbolTableNode *ptrFunctionSymbolTableNode){
+struct SymbolTableNode* insertToSymbolTable(char const *symbolName, int symbolType, int symbolReturnType, struct SymbolTableNode *ptrFunctionSymbolTableNode, struct SyntaxTreeNode *ptrFunctionSyntaxTreeRootNode){
 
   // Malloc for the new node
   struct SymbolTableNode* newNodePtr = (struct SymbolTableNode*) malloc(sizeof(struct SymbolTableNode));
@@ -498,8 +504,8 @@ struct SymbolTableNode* insertToSymbolTable(char const *symbolName, int symbolTy
   // Set the default values to 0
   newNodePtr->value.intVal = 0;
 
-  newNodePtr->ptrFunctionSyntaxTreeRootNode = ptrFunctionSyntaxTreeRootNode;
   newNodePtr->ptrFunctionSymbolTableNode = ptrFunctionSymbolTableNode;
+  newNodePtr->ptrFunctionSyntaxTreeRootNode = ptrFunctionSyntaxTreeRootNode;
 
   // Insert at the beginning of the list
   newNodePtr->next = (struct SymbolTableNode*)symbolTableHead;
