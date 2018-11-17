@@ -62,7 +62,8 @@ enum SyntaxTreeNodeType {
   INTEGER_NUMBER_VALUE, 
   FLOATING_POINT_NUMBER_VALUE, 
   ID_VALUE,
-  FUNCTION_VALUE
+  FUNCTION_VALUE,
+  RETURN
 };
 
 // Array of the names of the syntax tree node types.
@@ -101,7 +102,8 @@ char* SyntaxTreeNodeTypeName[] = {
   "INTEGER_NUMBER_VALUE", 
   "FLOATING_POINT_NUMBER_VALUE", 
   "ID_VALUE",
-  "FUNCTION_VALUE"
+  "FUNCTION_VALUE",
+  "RETURN"
 };
 
 // Declaration of the createNode function.
@@ -188,6 +190,7 @@ void printSymbolTable();
 %token SYMBOL_GEQ
 %token RES_WORD_FUN
 %token SYMBOL_COMMA
+%token RES_WORD_RETURN
 
 // Types
 %type <treeVal> prog
@@ -287,7 +290,7 @@ fun_decls : fun_decls fun_dec
 fun_dec : RES_WORD_FUN IDENTIFIER SYMBOL_LT_PARENTHESES oparams SYMBOL_RT_PARENTHESES SYMBOL_COLON tipo SYMBOL_LT_BRACKET opt_decls_for_function SYMBOL_RT_BRACKET stmt
         {
           // printf("id name = %s\n", (char*)$2);
-          symbolTableHead = insertToSymbolTable((char*)$2, FUNCTION_VALUE, NOTHING, functionSymbolTableHead, $11);
+          symbolTableHead = insertToSymbolTable((char*)$2, FUNCTION_VALUE, $7, functionSymbolTableHead, $11);
           functionSymbolTableHead = NULL;
         }
 
@@ -343,6 +346,11 @@ assign_stmt : RES_WORD_SET IDENTIFIER expr SYMBOL_SEMICOLON
             {
               $$ = createNode(NOTHING, NOTHING, NULL, PRINT, STMT, $2, NULL, NULL, NULL, NULL);
             }
+            | RES_WORD_RETURN expr SYMBOL_SEMICOLON
+            {
+              $$ = createNode(NOTHING, NOTHING, NULL, RETURN, STMT, $2, NULL, NULL, NULL, NULL);
+            }
+            
 ;
 
 if_stmt : RES_WORD_IF SYMBOL_LT_PARENTHESES expresion SYMBOL_RT_PARENTHESES stmt
@@ -584,7 +592,7 @@ void printSymbolTableNode(struct SymbolTableNode *node){
     case FUNCTION_VALUE:
 
       assert(node->returnType < sizeof(SyntaxTreeNodeTypeName));
-      printf("Return type: %s", SyntaxTreeNodeTypeName[node->returnType]);
+      printf("Return type: %s\n", SyntaxTreeNodeTypeName[node->returnType]);
       printf("Function Syntax Tree Root Node: %p\n", node->ptrFunctionSyntaxTreeRootNode);
       printf("Function Symbol Table Node: %p\n", node->ptrFunctionSymbolTableNode);
 
@@ -1413,8 +1421,8 @@ void handleInput(int argc, char **argv){
  */ 
 int main(int argc, char **argv) {
 
-  //extern int yydebug;
-  //yydebug = 1;
+  // extern int yydebug;
+  // yydebug = 1;
   handleInput(argc, argv);
   yyparse();
   return 0;
