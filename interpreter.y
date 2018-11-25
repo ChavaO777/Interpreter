@@ -63,6 +63,8 @@ enum SyntaxTreeNodeType {
   FLOATING_POINT_NUMBER_VALUE, 
   ID_VALUE,
   FUNCTION_VALUE,
+  PARAMETER_VALUE,
+  EXPR_LST,
   RETURN
 };
 
@@ -103,6 +105,8 @@ char* SyntaxTreeNodeTypeName[] = {
   "FLOATING_POINT_NUMBER_VALUE", 
   "ID_VALUE",
   "FUNCTION_VALUE",
+  "PARAMETER_VALUE",
+  "EXPR_LST",
   "RETURN"
 };
 
@@ -236,6 +240,8 @@ void printSymbolTable(struct SymbolTableNode *, char*);
 %type <treeVal> SYMBOL_LT_PARENTHESES
 %type <treeVal> SYMBOL_RT_PARENTHESES
 %type <intVal> tipo
+%type <treeVal> opt_exprs
+%type <treeVal> expr_lst
 %%
 
 prog : RES_WORD_PROGRAM IDENTIFIER SYMBOL_LT_BRACKET opt_decls opt_fun_decls SYMBOL_RT_BRACKET stmt 
@@ -429,7 +435,31 @@ factor : SYMBOL_LT_PARENTHESES expr SYMBOL_RT_PARENTHESES
        {
           $$ = createNode(NOTHING, doubleVal, NULL, FLOATING_POINT_NUMBER_VALUE, TERM, NULL, NULL, NULL, NULL, NULL);
        }
+       | IDENTIFIER SYMBOL_LT_PARENTHESES opt_exprs SYMBOL_RT_PARENTHESES
+       {
+          $$ = createNode(NOTHING, NOTHING, (char *)$1, FUNCTION_VALUE, TERM, $3, NULL, NULL, NULL, NULL);
+       }
 ;
+
+opt_exprs : expr_lst
+          {
+            $$ = $1;
+          }
+          | /*epsilon*/
+          {
+            $$ = NULL;
+          }
+;
+
+expr_lst : expr_lst SYMBOL_COMMA expr
+          {
+            $$ = createNode(NOTHING, NOTHING, NULL, PARAMETER_VALUE, EXPR_LST, $3, $1, NULL, NULL, NULL);
+          }
+          | expr
+          {
+            $$ = createNode(NOTHING, NOTHING, NULL, PARAMETER_VALUE, EXPR_LST, $1, NULL, NULL, NULL, NULL);
+          }
+          
 
 expresion : expr SYMBOL_LT expr
           {
@@ -1436,8 +1466,8 @@ void handleInput(int argc, char **argv){
  */ 
 int main(int argc, char **argv) {
 
-  // extern int yydebug;
-  // yydebug = 1;
+  extern int yydebug;
+  yydebug = 1;
   handleInput(argc, argv);
   yyparse();
   return 0;
