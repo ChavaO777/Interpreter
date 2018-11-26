@@ -1174,6 +1174,7 @@ void func_print(struct SyntaxTreeNode* printNode){
     // If this is in fact a function call, instead of an expression itself
     if(printNode->arrPtr[0]->type == FUNCTION_VALUE){ 
 
+      // TO DO
     }
     else{ // If it is an expression
 
@@ -1474,6 +1475,7 @@ void func_return(struct SyntaxTreeNode* returnNode){
     // If this is in fact a function call, instead of an expression itself
     if(returnNode->arrPtr[0]->type == FUNCTION_VALUE){ 
 
+      // TO DO
     }
     else{ // If it is an expression
 
