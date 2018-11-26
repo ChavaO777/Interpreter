@@ -305,7 +305,6 @@ fun_decls : fun_decls fun_dec
 
 fun_dec : RES_WORD_FUN IDENTIFIER SYMBOL_LT_PARENTHESES oparams SYMBOL_RT_PARENTHESES SYMBOL_COLON tipo SYMBOL_LT_BRACKET opt_decls_for_function SYMBOL_RT_BRACKET stmt
         {
-          // printf("id name = %s\n", (char*)$2);
           insertToSymbolTable(&symbolTableHead, (char*)$2, FUNCTION_VALUE, $7, functionSymbolTableHead, $11);
           functionSymbolTableHead = NULL;
         }
@@ -587,6 +586,8 @@ struct SymbolTableNode* retrieveFromSymbolTable(char const *symbolName){
   // with the name of the symbol that you're looking for.
   while(currPtr != NULL){
 
+    assert(currPtr->name);
+
     if(strcmp(currPtr->name, symbolName) == 0)
       return currPtr;
 
@@ -860,6 +861,12 @@ struct SyntaxTreeNode* createNode(int iVal, double dVal, char* idName,
       newNodePtr->value.idName = (char *) malloc(strlen(idName) + 1);
       strcpy (newNodePtr->value.idName, idName);
     }
+    else if(type == FUNCTION_VALUE){
+
+      // Malloc for the function's name
+      newNodePtr->value.idName = (char *) malloc(strlen(idName) + 1);
+      strcpy (newNodePtr->value.idName, idName);
+    }
 
     return newNodePtr;
 }
@@ -911,16 +918,22 @@ void printTree(struct SyntaxTreeNode* node){
 
   if(node->type == INTEGER_NUMBER_VALUE){
 
-    printf("Node value = %d\n",node->value.intVal);
+    printf("Node value = %d\n", node->value.intVal);
   }
 
   else if(node->type == ID_VALUE){
 
-    printf("Node value = %s\n",node->value.idName);
+    printf("Node value = %s\n", node->value.idName);
   }
 
   else if(node->type == FLOATING_POINT_NUMBER_VALUE){
-    printf("Node value = %f\n",node->value.doubleVal);
+
+    printf("Node value = %f\n", node->value.doubleVal);
+  }
+  
+  else if(node->type == FUNCTION_VALUE){
+
+    printf("Node value = %s\n", node->value.idName);
   }
 
   // Print the addresses of the current node's children
@@ -1174,7 +1187,18 @@ void func_print(struct SyntaxTreeNode* printNode){
     // If this is in fact a function call, instead of an expression itself
     if(printNode->arrPtr[0]->type == FUNCTION_VALUE){ 
 
-      // TO DO
+      func_func(printNode->arrPtr[0]);
+      struct SymbolTableNode* currFunc = retrieveFromSymbolTable(printNode->arrPtr[0]->value.idName);
+      
+      if(currFunc->returnType == INTEGER_NUMBER_VALUE){
+
+        printf("%d\n", currFunc->value.intVal);
+      }
+      else{
+
+        assert(currFunc->returnType == FLOATING_POINT_NUMBER_VALUE);
+        printf("%lf\n", currFunc->value.doubleVal);
+      }
     }
     else{ // If it is an expression
 
