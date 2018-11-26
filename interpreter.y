@@ -774,13 +774,26 @@ void insertFunctionCallToStack(struct SymbolTableNode* ptrFunctionSymbolNode){
 }
 
 /**
- * Function that pops a function fromt the call stack
+ * Function that pops a function from the call stack.
  */ 
 void popFunctionCallToStack(){
 
   struct CurrentFunction* tmp = ptrFunctionCallStackTop;
   ptrFunctionCallStackTop = ptrFunctionCallStackTop->stack;
   free(tmp);
+}
+
+/**
+ * Function that prints the call stack.
+ */ 
+void printCallStack(){
+
+  struct CurrentFunction* tmp = ptrFunctionCallStackTop;
+  while(tmp != NULL){
+
+    printf("%s\n", tmp->ptrFunctionSymbolNode->name);
+    tmp = tmp->stack;
+  }
 }
 
 /**
@@ -1167,7 +1180,6 @@ void func_print(struct SyntaxTreeNode* printNode){
 
       if(isIntegerExpr(printNode->arrPtr[0])){
 
-        printf("HERE!!!");
         printf("%d\n", func_exprInt(printNode->arrPtr[0]));
       }
       else{
@@ -1435,6 +1447,16 @@ void func_for(struct SyntaxTreeNode* forNode){
 }
 
 /**
+ * Function that handles 'return' statements.
+ * 
+ * @param returnNode the root node of the 'return' term.
+ */ 
+void func_return(struct SyntaxTreeNode* returnNode){
+
+
+}
+
+/**
  * Function that traverses the syntax tree and
  * actually calls the execution of the input program
  * 
@@ -1485,6 +1507,11 @@ void traverseTree(struct SyntaxTreeNode* node){
     case READ:
 
       func_read(node);
+      break;
+
+    case RETURN:
+
+      func_return(node);
       break;
   } 
 
