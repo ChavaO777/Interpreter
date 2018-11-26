@@ -143,6 +143,15 @@ struct SymbolTableNode *functionSymbolTableHead;
 
 // Declaration of the printSymbolTable function.
 void printSymbolTable(struct SymbolTableNode *, char*);
+
+// Declaration of the top of the function call stack
+struct CurrentFunction *ptrFunctionCallStackTop;
+
+// Declaration of the popFunctionCallToStack function.
+void popFunctionCallToStack();
+
+// Declaration of the insertFunctionCallToStack function.
+void insertFunctionCallToStack(struct SymbolTableNode*);
 %}
 
 /**
@@ -742,6 +751,39 @@ int getFloatingPointValueFromSymbol(char const *symbolName){
 }
 
 /**
+ * Struct that corresponds to the current function being executed.
+ * This represents the call stack.
+ */ 
+struct CurrentFunction{
+
+  struct SymbolTableNode* ptrFunctionSymbolNode;
+  struct CurrentFunction* stack;
+};
+
+/**
+ * Function that inserts a function to the call stack
+ * @param ptrFunctionSymbolNode a pointer to the symbol corresponding to the function
+ * to insert in the call stack
+ */ 
+void insertFunctionCallToStack(struct SymbolTableNode* ptrFunctionSymbolNode){
+
+  struct CurrentFunction *ptrNewFunctionCallNode = (struct CurrentFunction*) malloc(sizeof(struct CurrentFunction));
+  ptrNewFunctionCallNode->ptrFunctionSymbolNode = ptrFunctionSymbolNode;
+  ptrNewFunctionCallNode->stack = ptrFunctionCallStackTop;
+  ptrFunctionCallStackTop = ptrNewFunctionCallNode;
+}
+
+/**
+ * Function that pops a function fromt the call stack
+ */ 
+void popFunctionCallToStack(){
+
+  struct CurrentFunction* tmp = ptrFunctionCallStackTop;
+  ptrFunctionCallStackTop = ptrFunctionCallStackTop->stack;
+  free(tmp);
+}
+
+/**
  * Structure of the node for the syntax tree.
  */ 
 struct SyntaxTreeNode {
@@ -1075,6 +1117,26 @@ int isFloatingPointExpr(struct SyntaxTreeNode* exprNode){
 }
 
 /**
+ * Function that handles function calls.
+ * 
+ * @param funcNode the root node of the function call
+ */ 
+void func_func(struct SyntaxTreeNode* funcNode){
+
+  // First, check whether the passed parameters are correct and if so, assign them
+  // assignParameters(funcNode);
+  // Get the symbol of the function
+  struct SymbolTableNode* funcSymbol = retrieveFromSymbolTable(funcNode->value.idName);
+  // Set the global variable corresponding to the pointer of the current function being
+  // executed.
+  insertFunctionCallToStack(funcSymbol);
+  // Execute the function
+  traverseTree(funcSymbol->ptrFunctionSyntaxTreeRootNode);
+  // Pop the current function from the call stack
+  popFunctionCallToStack();
+}
+
+/**
  * Function that handles print statements of the 
  * language's grammar.
  * 
@@ -1096,15 +1158,23 @@ void func_print(struct SyntaxTreeNode* printNode){
   else if(printNode->arrPtr[0]->parentNodeType == EXPR
     || printNode->arrPtr[0]->parentNodeType == TERM
     || printNode->arrPtr[0]->parentNodeType == FACTOR){
-    
-    if(isIntegerExpr(printNode->arrPtr[0])){
+      
+    // If this is in fact a function call, instead of an expression itself
+    if(printNode->arrPtr[0]->type == FUNCTION_VALUE){ 
 
-      printf("%d\n", func_exprInt(printNode->arrPtr[0]));
     }
-    else{
+    else{ // If it is an expression
 
-      assert(isFloatingPointExpr(printNode->arrPtr[0]));
-      printf("%lf\n", func_exprDouble(printNode->arrPtr[0]));
+      if(isIntegerExpr(printNode->arrPtr[0])){
+
+        printf("HERE!!!");
+        printf("%d\n", func_exprInt(printNode->arrPtr[0]));
+      }
+      else{
+
+        assert(isFloatingPointExpr(printNode->arrPtr[0]));
+        printf("%lf\n", func_exprDouble(printNode->arrPtr[0]));
+      }
     }
   }
 }
