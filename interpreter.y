@@ -1140,8 +1140,7 @@ void func_func(struct SyntaxTreeNode* funcNode){
   // assignParameters(funcNode);
   // Get the symbol of the function
   struct SymbolTableNode* funcSymbol = retrieveFromSymbolTable(funcNode->value.idName);
-  // Set the global variable corresponding to the pointer of the current function being
-  // executed.
+  // Add the function to the call stack
   insertFunctionCallToStack(funcSymbol);
   // Execute the function
   traverseTree(funcSymbol->ptrFunctionSyntaxTreeRootNode);
@@ -1447,13 +1446,50 @@ void func_for(struct SyntaxTreeNode* forNode){
 }
 
 /**
- * Function that handles 'return' statements.
+ * Function that handles 'return' statements. The return value of each 
+ * function will be stored in the function's entry in the symbol table.
  * 
  * @param returnNode the root node of the 'return' term.
  */ 
 void func_return(struct SyntaxTreeNode* returnNode){
 
+  // Each return statement must contain an expression.
+  assert(returnNode->arrPtr[0] != NULL);
+  struct CurrentFunction* currFunction = ptrFunctionCallStackTop;
 
+  if(returnNode->arrPtr[0]->type == INTEGER_NUMBER_VALUE){
+
+    assert(currFunction->ptrFunctionSymbolNode->returnType == INTEGER_NUMBER_VALUE);
+    currFunction->ptrFunctionSymbolNode->value.intVal = returnNode->arrPtr[0]->value.intVal;
+  } 
+  else if(returnNode->arrPtr[0]->type == FLOATING_POINT_NUMBER_VALUE){
+    
+    assert(currFunction->ptrFunctionSymbolNode->returnType == FLOATING_POINT_NUMBER_VALUE);
+    currFunction->ptrFunctionSymbolNode->value.doubleVal = returnNode->arrPtr[0]->value.doubleVal;
+  }
+  else if(returnNode->arrPtr[0]->parentNodeType == EXPR
+    || returnNode->arrPtr[0]->parentNodeType == TERM
+    || returnNode->arrPtr[0]->parentNodeType == FACTOR){
+      
+    // If this is in fact a function call, instead of an expression itself
+    if(returnNode->arrPtr[0]->type == FUNCTION_VALUE){ 
+
+    }
+    else{ // If it is an expression
+
+      if(isIntegerExpr(returnNode->arrPtr[0])){
+
+        assert(currFunction->ptrFunctionSymbolNode->returnType == INTEGER_NUMBER_VALUE);
+        currFunction->ptrFunctionSymbolNode->value.intVal = func_exprInt(returnNode->arrPtr[0]);
+      }
+      else{
+
+        assert(isFloatingPointExpr(returnNode->arrPtr[0]));
+        assert(currFunction->ptrFunctionSymbolNode->returnType == FLOATING_POINT_NUMBER_VALUE);
+        currFunction->ptrFunctionSymbolNode->value.doubleVal = func_exprDouble(returnNode->arrPtr[0]);
+      }
+    }
+  }
 }
 
 /**
@@ -1563,8 +1599,8 @@ void handleInput(int argc, char **argv){
  */ 
 int main(int argc, char **argv) {
 
-  extern int yydebug;
-  yydebug = 1;
+  // extern int yydebug;
+  // yydebug = 1;
   handleInput(argc, argv);
   yyparse();
   return 0;
