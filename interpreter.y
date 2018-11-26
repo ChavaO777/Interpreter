@@ -262,6 +262,7 @@ prog : RES_WORD_PROGRAM IDENTIFIER SYMBOL_LT_BRACKET opt_decls opt_fun_decls SYM
         syntaxTreeRoot = createNode(NOTHING, NOTHING, NULL, PROGRAM, NOTHING, $7, NULL, NULL, NULL, NULL);
         startTreePrinting(syntaxTreeRoot, "main");
         printSymbolTable(symbolTableHead, "main");
+
         printf("########## START OF PROGRAM OUTPUT ##########\n\n");
         traverseTree(syntaxTreeRoot);
         printf("########## END OF PROGRAM OUTPUT ##########\n\n");
@@ -762,6 +763,9 @@ struct CurrentFunction{
 
   struct SymbolTableNode* ptrFunctionSymbolNode;
   struct CurrentFunction* stack;
+  // Flag that indicates whether the function
+  // already executed a 'return' statement.
+  int alreadyReturned;
 };
 
 /**
@@ -774,6 +778,7 @@ void insertFunctionCallToStack(struct SymbolTableNode* ptrFunctionSymbolNode){
   struct CurrentFunction *ptrNewFunctionCallNode = (struct CurrentFunction*) malloc(sizeof(struct CurrentFunction));
   ptrNewFunctionCallNode->ptrFunctionSymbolNode = ptrFunctionSymbolNode;
   ptrNewFunctionCallNode->stack = ptrFunctionCallStackTop;
+  ptrNewFunctionCallNode->alreadyReturned = 0;
   ptrFunctionCallStackTop = ptrNewFunctionCallNode;
 }
 
@@ -1548,6 +1553,35 @@ void func_return(struct SyntaxTreeNode* returnNode){
       }
     }
   }
+
+  // Mark that this function already executed a 'return' statement
+  // to skip the rest of the function body.
+  ptrFunctionCallStackTop->alreadyReturned = 1;
+}
+
+/**
+ * Function that determines whether a function
+ * is being executed.
+ * 
+ * @returns a positive number if a function is being
+ * executed. Else, zero.
+ */ 
+int functionIsBeingExecuted(){
+
+  return ptrFunctionCallStackTop != NULL;
+}
+
+/**
+ * Function that determines whether the current function
+ * being executed already executed a 'return' statement.
+ * 
+ * @returns a positive number if the current function
+ * being executed already executed a 'return' statement.
+ * Else, zero.
+ */ 
+int currentFunctionAlreadyReturned(){
+
+  return ptrFunctionCallStackTop->alreadyReturned;
 }
 
 /**
@@ -1560,6 +1594,22 @@ void func_return(struct SyntaxTreeNode* returnNode){
 void traverseTree(struct SyntaxTreeNode* node){
 
   if(node == NULL)
+    return;
+
+  // Check the following:
+  // 
+  // 1. whether there is a function being executed at the moment 
+  // 2. whether the execution control in the current function 
+  //   already entered a 'return' statement
+  //
+  // These checks have the following goals:
+  //
+  // 1. Making each function return the value of the expression
+  //    right after the FIRST 'return' statement.
+  //
+  // 2. Skipping the execution of the rest of the function if a
+  //    'return' statement has already been executed.
+  if(functionIsBeingExecuted() && currentFunctionAlreadyReturned())
     return;
 
   switch(node->type){
