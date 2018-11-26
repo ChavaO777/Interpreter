@@ -1172,15 +1172,23 @@ int isFloatingPointExpr(struct SyntaxTreeNode* exprNode){
  */ 
 void func_func(struct SyntaxTreeNode* funcNode){
 
-  // First, check whether the passed parameters are correct and if so, assign them
+  // Assert that the passed parameters are correct
+  // assert(parametersAreCorrect(funcNode));
+
+  // Assign the parameters
   // assignParameters(funcNode);
+
   // Get the symbol of the function
   struct SymbolTableNode* funcSymbol = retrieveFromSymbolTable(funcNode->value.idName);
+  
   // Add the function to the call stack
   insertFunctionCallToStack(funcSymbol);
+  
   printCallStack();
+  
   // Execute the function
   traverseTree(funcSymbol->ptrFunctionSyntaxTreeRootNode);
+  
   // Pop the current function from the call stack
   popFunctionCallToStack();
 }
