@@ -5,7 +5,7 @@ program uno
 
     }
     {
-        return 10.0;
+        return 10.0 + 1.0 - 1.0;
     }
 }
 {  

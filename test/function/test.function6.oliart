@@ -1,13 +1,21 @@
 program uno
 {
-    fun add (var x: int, var y: int) : int
+    fun get11 () : int
     {
-        
+
     }
     {
-        return x + y;
+        return 11;
+    }
+
+    fun get21 () : int
+    {
+
+    }
+    {
+        return 10 + get11();
     }
 }
 {  
-    print add(1, 2);
+    print get21();
 }
