@@ -1,0 +1,29 @@
+program uno
+{
+    fun get1 () : float
+    {
+
+    }
+    {
+        return 1.0;
+    }
+
+    fun get3 () : float
+    {
+
+    }
+    {
+        return 2.0 + get1();
+    }
+
+    fun get6 () : float
+    {
+
+    }
+    {
+        return 3.0 + get3();
+    }
+}
+{  
+    print get6();
+}

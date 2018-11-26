@@ -152,6 +152,9 @@ void popFunctionCallToStack();
 
 // Declaration of the insertFunctionCallToStack function.
 void insertFunctionCallToStack(struct SymbolTableNode*);
+
+// Declaration of the func_func function.
+void func_func(struct SyntaxTreeNode*);
 %}
 
 /**
@@ -789,12 +792,16 @@ void popFunctionCallToStack(){
  */ 
 void printCallStack(){
 
+  printf("Current call stack:\n\n");
+
   struct CurrentFunction* tmp = ptrFunctionCallStackTop;
   while(tmp != NULL){
 
     printf("%s\n", tmp->ptrFunctionSymbolNode->name);
     tmp = tmp->stack;
   }
+
+  printf("\n\n");
 }
 
 /**
@@ -983,7 +990,8 @@ int func_exprInt(struct SyntaxTreeNode* exprIntNode){
   }
 
   assert(exprIntNode->type == INTEGER_NUMBER_VALUE
-    || exprIntNode->type == ID_VALUE);
+    || exprIntNode->type == ID_VALUE
+    || exprIntNode->type == FUNCTION_VALUE);
 
   int valToReturn = 0;
 
@@ -997,6 +1005,13 @@ int func_exprInt(struct SyntaxTreeNode* exprIntNode){
     assert(currNode->type == INTEGER_NUMBER_VALUE);
     //printSymbolTableNode(currNode);
     valToReturn = currNode->value.intVal;
+  }
+  else if(exprIntNode->type == FUNCTION_VALUE){
+
+    func_func(exprIntNode);
+    struct SymbolTableNode* currFunc = retrieveFromSymbolTable(exprIntNode->value.idName);
+    assert(currFunc->returnType == INTEGER_NUMBER_VALUE);    
+    valToReturn = currFunc->value.intVal;
   }
 
   return valToReturn;
@@ -1036,7 +1051,8 @@ double func_exprDouble(struct SyntaxTreeNode* exprDoubleNode){
   }
 
   assert(exprDoubleNode->type == ID_VALUE
-    || exprDoubleNode-> type == FLOATING_POINT_NUMBER_VALUE);
+    || exprDoubleNode-> type == FLOATING_POINT_NUMBER_VALUE
+    || exprDoubleNode-> type == FUNCTION_VALUE);
 
   // handleError(ERROR_CODE_DATA_TYPE_MISMATCH, ERROR_MESSAGE_DATA_TYPE_MISMATCH);
 
@@ -1051,6 +1067,13 @@ double func_exprDouble(struct SyntaxTreeNode* exprDoubleNode){
     assert(currNode->type == FLOATING_POINT_NUMBER_VALUE);
     //printSymbolTableNode(currNode);
     valToReturn = currNode->value.doubleVal;
+  }
+  else if(exprDoubleNode-> type == FUNCTION_VALUE){
+
+    func_func(exprDoubleNode);
+    struct SymbolTableNode* currFunc = retrieveFromSymbolTable(exprDoubleNode->value.idName);
+    assert(currFunc->returnType == FLOATING_POINT_NUMBER_VALUE);    
+    valToReturn = currFunc->value.doubleVal;
   }
 
   return valToReturn;
@@ -1155,6 +1178,7 @@ void func_func(struct SyntaxTreeNode* funcNode){
   struct SymbolTableNode* funcSymbol = retrieveFromSymbolTable(funcNode->value.idName);
   // Add the function to the call stack
   insertFunctionCallToStack(funcSymbol);
+  printCallStack();
   // Execute the function
   traverseTree(funcSymbol->ptrFunctionSyntaxTreeRootNode);
   // Pop the current function from the call stack

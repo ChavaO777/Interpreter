@@ -1,0 +1,29 @@
+program uno
+{
+    fun get1 () : int
+    {
+
+    }
+    {
+        return 1;
+    }
+
+    fun get3 () : int
+    {
+
+    }
+    {
+        return 2 + get1();
+    }
+
+    fun get6 () : int
+    {
+
+    }
+    {
+        return 3 + get3();
+    }
+}
+{  
+    print get6();
+}
