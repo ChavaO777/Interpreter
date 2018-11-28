@@ -1171,6 +1171,18 @@ int isFloatingPointExpr(struct SyntaxTreeNode* exprNode){
 }
 
 /**
+ * Function that determines whether the set of parameters passed to 
+ * a function is correct.
+ * 
+ * @param funcNode the root node of the function call
+ * @returns 1 if the parameter set is correct. Else, 0.
+ */ 
+int parametersAreCorrect(struct SyntaxTreeNode* funcNode){
+
+  return 1;
+}
+
+/**
  * Function that handles function calls.
  * 
  * @param funcNode the root node of the function call
@@ -1178,7 +1190,7 @@ int isFloatingPointExpr(struct SyntaxTreeNode* exprNode){
 void func_func(struct SyntaxTreeNode* funcNode){
 
   // Assert that the passed parameters are correct
-  // assert(parametersAreCorrect(funcNode));
+  assert(parametersAreCorrect(funcNode));
 
   // Assign the parameters
   // assignParameters(funcNode);

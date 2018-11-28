@@ -5,18 +5,14 @@ Interpreter project for the Compiler Design class
 
 Execute the following commands in bash:
 
-- flex <LEX_FILE_NAME.lex>
-- bison -d [-t] <Y_FILE_NAME.y>
-- gcc lex.yy.c <TAB.C_FILE_NAME> -ll
+- Make
 - ./a.out <INPUT_FILE_NAME>
 
-> **Note:** the "-ll" flag is "-lfl" in Windows. The "-t" flag is the trace flag.
+> **Note:** In the Makefile, the "-ll" flag is "-lfl" in Windows. The "-t" flag is the trace flag. See the file for details.
 
 **E.g.**
 
-- flex interpreter.lex
-- bison -d interpreter.y
-- gcc lex.yy.c interpreter.tab.c -ll
+- Make
 - ./a.out my_program_source_code.txt
 
 # Instructions for running a test
