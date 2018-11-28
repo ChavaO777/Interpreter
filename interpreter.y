@@ -1726,8 +1726,10 @@ void handleInput(int argc, char **argv){
  */ 
 int main(int argc, char **argv) {
 
-  // extern int yydebug;
-  // yydebug = 1;
+  #ifdef _PRINT_PARSE_TRACE
+  extern int yydebug;
+  yydebug = 1;
+  #endif
   handleInput(argc, argv);
   yyparse();
   return 0;
