@@ -563,6 +563,14 @@ struct CurrentFunction{
   // Flag that indicates whether the function
   // already executed a 'return' statement.
   int alreadyReturned;
+  // The return value of the current function MUST be stored
+  // in the call stack because if a function is called inside
+  // itself or a function is a parameter to itself, its return
+  // values could be lost/overwritten.
+  union {
+    int intVal; /* Integer value */
+    double doubleVal; /* Floating-point value */
+  } value;
 };
 
 /**
@@ -848,6 +856,7 @@ void insertFunctionCallToStack(struct SymbolTableNode* ptrFunctionSymbolNode){
   ptrNewFunctionCallNode->ptrFunctionSymbolNode = ptrFunctionSymbolNode;
   ptrNewFunctionCallNode->stack = ptrFunctionCallStackTop;
   ptrNewFunctionCallNode->alreadyReturned = 0;
+  ptrNewFunctionCallNode->value.intVal = 0;
   ptrFunctionCallStackTop = ptrNewFunctionCallNode;
 }
 
@@ -1087,7 +1096,9 @@ int func_exprInt(struct SyntaxTreeNode* exprIntNode){
     // of the main function, so directly call the auxiliary method that looks in that specific symbol table.
     struct SymbolTableNode* currFunc = auxRetrieveFromSymbolTable(exprIntNode->value.idName, mainFunctionSymbolTableHead);
     assert(currFunc->returnType == INTEGER_NUMBER_VALUE);    
-    valToReturn = currFunc->value.intVal;
+    // valToReturn = currFunc->value.intVal;
+    valToReturn = ptrFunctionCallStackTop->value.intVal;
+    popFunctionCallToStack();
   }
 
   return valToReturn;
@@ -1151,7 +1162,9 @@ double func_exprDouble(struct SyntaxTreeNode* exprDoubleNode){
     // of the main function, so directly call the auxiliary method that looks in that specific symbol table.
     struct SymbolTableNode* currFunc = auxRetrieveFromSymbolTable(exprDoubleNode->value.idName, mainFunctionSymbolTableHead);
     assert(currFunc->returnType == FLOATING_POINT_NUMBER_VALUE);    
-    valToReturn = currFunc->value.doubleVal;
+    // valToReturn = currFunc->value.doubleVal;
+    valToReturn = ptrFunctionCallStackTop->value.doubleVal;
+    popFunctionCallToStack();
   }
 
   return valToReturn;
@@ -1277,16 +1290,21 @@ int computeFunctionSymbolTableLength(char const *functionName){
  * @param node a node in the syntax subtree corresponding to 
  * the called function
  */ 
-int computeAmountOfParametersPassed(struct SyntaxTreeNode* node){
+int computeAmountOfParametersPassed(struct SyntaxTreeNode* node, int depthFromFunctionRootNode){
 
   if(!node)
     return 0;
+  
+  // Careful: what if a parameter to a function is another function?
+  // There's a bug here!!
 
   int count = 0;
-  count += (node->type == PARAMETER_VALUE);
+
+  if(depthFromFunctionRootNode <= 1)
+    count += (node->type == PARAMETER_VALUE);
 
   for(int i = 0; i < 4; i++)
-    count += computeAmountOfParametersPassed(node->arrPtr[i]);
+    count += computeAmountOfParametersPassed(node->arrPtr[i], depthFromFunctionRootNode + (node->type == FUNCTION_VALUE));
 
   return count;
 }
@@ -1361,10 +1379,10 @@ int parametersAreCorrect(struct SyntaxTreeNode* funcNode){
 
   // 'functionSymbolTableLength' corresponds to 'S' in the above explanation
   int functionSymbolTableLength = computeFunctionSymbolTableLength(funcNode->value.idName);
-  // printf("functionSymbolTableLength = %d\n", functionSymbolTableLength);
+  printf("functionSymbolTableLength = %d\n", functionSymbolTableLength);
   // 'amountOfParametersPassed' corresponds to 'A' in the above explanation
-  int amountOfParametersPassed = computeAmountOfParametersPassed(funcNode);
-  // printf("amountOfParametersPassed = %d\n", amountOfParametersPassed);
+  int amountOfParametersPassed = computeAmountOfParametersPassed(funcNode, 0);
+  printf("amountOfParametersPassed = %d\n", amountOfParametersPassed);
   assert(functionSymbolTableLength >= amountOfParametersPassed);
 
   // As we know that this is a function, then we know that this symbol must exist in the symbol table
@@ -1410,7 +1428,7 @@ void assignParameters(struct SyntaxTreeNode* funcNode){
   int functionSymbolTableLength = computeFunctionSymbolTableLength(funcNode->value.idName);
 
   // 2. Get the amount of parameters passed to the called function.
-  int amountOfParametersPassed = computeAmountOfParametersPassed(funcNode);
+  int amountOfParametersPassed = computeAmountOfParametersPassed(funcNode, 0);
 
   // functionSymbolTableLength should always be greater than or equal to amountOfParametersPassed. 
   // functionSymbolTableLength is greater than amountOfParametersPassed when the function has variable
@@ -1479,8 +1497,8 @@ void func_func(struct SyntaxTreeNode* funcNode){
   // Execute the function
   traverseTree(funcSymbol->ptrFunctionSyntaxTreeRootNode);
   
-  // Pop the current function from the call stack
-  popFunctionCallToStack();
+  // // Pop the current function from the call stack
+  // popFunctionCallToStack();
 }
 
 /**
@@ -1516,13 +1534,17 @@ void func_print(struct SyntaxTreeNode* printNode){
       
       if(currFunc->returnType == INTEGER_NUMBER_VALUE){
 
-        printf("%d\n", currFunc->value.intVal);
+        // printf("%d\n", currFunc->value.intVal);
+        printf("%d\n", ptrFunctionCallStackTop->value.intVal);
       }
       else{
 
         assert(currFunc->returnType == FLOATING_POINT_NUMBER_VALUE);
-        printf("%lf\n", currFunc->value.doubleVal);
+        // printf("%lf\n", currFunc->value.doubleVal);
+        printf("%lf\n", ptrFunctionCallStackTop->value.doubleVal);
       }
+
+      popFunctionCallToStack();
     }
     else{ // If it is an expression
 
