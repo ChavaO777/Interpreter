@@ -260,8 +260,13 @@ prog : RES_WORD_PROGRAM IDENTIFIER SYMBOL_LT_BRACKET opt_decls opt_fun_decls SYM
       {
         struct SyntaxTreeNode* syntaxTreeRoot;
         syntaxTreeRoot = createNode(NOTHING, NOTHING, NULL, PROGRAM, NOTHING, $7, NULL, NULL, NULL, NULL);
+        
+        #ifdef _PRINT_SYNTAX_TREE
         startTreePrinting(syntaxTreeRoot, "main");
+        #endif
+        #ifdef _PRINT_SYMBOL_TABLE
         printSymbolTable(symbolTableHead, "main");
+        #endif
 
         printf("########## START OF PROGRAM OUTPUT ##########\n\n");
         traverseTree(syntaxTreeRoot);

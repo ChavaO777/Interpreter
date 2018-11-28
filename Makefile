@@ -9,4 +9,4 @@ PARSER = interpreter.y
 $(PROGRAM): $(LEX) $(PARSER)
 	$(FLEX) $(LEX)
 	$(BISON) -d $(PARSER)
-	$(CC) *.c -ll
+	$(CC) $(CFLAGS) *.c -ll
