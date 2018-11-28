@@ -13,7 +13,7 @@ Make CFLAGS="-D_PRINT_SYNTAX_TREE -D_PRINT_SYMBOL_TABLE"
 
 > **Note:** This would print both the syntax tree and the symbol table of the input program. If desired, only one of those flags could be passed so either the syntax tree or the symbol table is printed.
 
-### b. Production mode
+### b. Standard mode
 
 ```
 Make
