@@ -1,0 +1,23 @@
+program uno
+{
+    fun multiply (var x: int, var y: int) : int
+    {
+        var i : int;
+        var ans : int
+    }
+    {
+        set ans 0;
+
+        for set i 1 to y step 1 do
+        {
+            set ans (ans + x);
+        } 
+
+        return ans;
+    }
+}
+{  
+    print multiply(2, 3);
+    print multiply(10, 10);
+    print (multiply(2, 3) * multiply(10, 10));
+}

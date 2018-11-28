@@ -136,7 +136,7 @@ void traverseTree(struct SyntaxTreeNode*);
 void insertToSymbolTable(struct SymbolTableNode**, char const *, int, int, struct SymbolTableNode*, struct SyntaxTreeNode*);
 
 // Declaration of the head of the linked list representing the symbol table.
-struct SymbolTableNode *symbolTableHead;
+struct SymbolTableNode *mainFunctionSymbolTableHead;
 
 // Declaration of the head of the linked list representing the symbol table of a SPECIFIC FUNCTION (not the main one)
 struct SymbolTableNode *functionSymbolTableHead;
@@ -265,7 +265,7 @@ prog : RES_WORD_PROGRAM IDENTIFIER SYMBOL_LT_BRACKET opt_decls opt_fun_decls SYM
         startTreePrinting(syntaxTreeRoot, "main");
         #endif
         #ifdef _PRINT_SYMBOL_TABLE
-        printSymbolTable(symbolTableHead, "main");
+        printSymbolTable(mainFunctionSymbolTableHead, "main");
         #endif
 
         printf("########## START OF PROGRAM OUTPUT ##########\n\n");
@@ -287,7 +287,7 @@ decls : dec SYMBOL_SEMICOLON decls
 dec : RES_WORD_VAR IDENTIFIER SYMBOL_COLON tipo
     {
       // printf("id name = %s\n", (char*)$2);
-      insertToSymbolTable(&symbolTableHead, (char*)$2, $4, NOTHING, NULL, NULL);
+      insertToSymbolTable(&mainFunctionSymbolTableHead, (char*)$2, $4, NOTHING, NULL, NULL);
     }
 ;
 
@@ -314,7 +314,7 @@ fun_decls : fun_decls fun_dec
 
 fun_dec : RES_WORD_FUN IDENTIFIER SYMBOL_LT_PARENTHESES oparams SYMBOL_RT_PARENTHESES SYMBOL_COLON tipo SYMBOL_LT_BRACKET opt_decls_for_function SYMBOL_RT_BRACKET stmt
         {
-          insertToSymbolTable(&symbolTableHead, (char*)$2, FUNCTION_VALUE, $7, functionSymbolTableHead, $11);
+          insertToSymbolTable(&mainFunctionSymbolTableHead, (char*)$2, FUNCTION_VALUE, $7, functionSymbolTableHead, $11);
           functionSymbolTableHead = NULL;
         }
 
@@ -507,12 +507,14 @@ expresion : expr SYMBOL_LT expr
 #define ERROR_CODE_INVALID_ASSIGNMENT_TO_INT_SYMBOL                         2
 #define ERROR_CODE_INVALID_ASSIGNMENT_TO_FLOATING_POINT_SYMBOL              3
 #define ERROR_CODE_DATA_TYPE_MISMATCH                                       4
+#define ERROR_CODE_PARAMETER_SET_MISMATCH                                   5
 
 // Error messages
 #define ERROR_MESSAGE_SYMBOL_NOT_FOUND                                      "Attempted to retrieve a non-existent symbol."
 #define ERROR_MESSAGE_INVALID_ASSIGNMENT_TO_INT_SYMBOL                      "Attempted to assign an integer value to a symbol storing a floating-point value."
 #define ERROR_MESSAGE_INVALID_ASSIGNMENT_TO_FLOATING_POINT_SYMBOL           "Attempted to assign a floating-point value to a symbol storing an integer value."
 #define ERROR_MESSAGE_DATA_TYPE_MISMATCH                                    "Attempted to perform an operation with more than one data type."
+#define ERROR_MESSAGE_PARAMETER_SET_MISMATCH                                "Attempted to pass an incorrect parameter set to a function"
 
 void handleError(int errorCode, char *errorMessage){
 
@@ -551,6 +553,44 @@ struct SymbolTableNode {
 };
 
 /**
+ * Struct that corresponds to the current function being executed.
+ * This represents the call stack.
+ */ 
+struct CurrentFunction{
+
+  struct SymbolTableNode* ptrFunctionSymbolNode;
+  struct CurrentFunction* stack;
+  // Flag that indicates whether the function
+  // already executed a 'return' statement.
+  int alreadyReturned;
+};
+
+/**
+ * Function that determines whether a function
+ * is being executed.
+ * 
+ * @returns a positive number if a function is being
+ * executed. Else, zero.
+ */ 
+int functionIsBeingExecuted(){
+
+  return ptrFunctionCallStackTop != NULL;
+}
+
+/**
+ * Function that determines whether the current function
+ * being executed already executed a 'return' statement.
+ * 
+ * @returns a positive number if the current function
+ * being executed already executed a 'return' statement.
+ * Else, zero.
+ */ 
+int currentFunctionAlreadyReturned(){
+
+  return ptrFunctionCallStackTop->alreadyReturned;
+}
+
+/**
  * Function that inserts a new symbol to the symbol table.
  * 
  * @param symbolName the name of the symbol to insert.
@@ -585,9 +625,11 @@ void insertToSymbolTable(struct SymbolTableNode** ptrPtrTableHead, char const *s
  * Function that retrieves a symbol from the symbol table given its name.
  * 
  * @param symbolName the name of the symbol to retrieve.
+ * @param symbolTableHead the head of the symbol table. This could be either
+ * the symbol table of the main function or the symbol table of a function.
  * @returns a pointer to the symbol or 0 if the symbol was not found.
  */ 
-struct SymbolTableNode* retrieveFromSymbolTable(char const *symbolName){
+struct SymbolTableNode* auxRetrieveFromSymbolTable(char const *symbolName, struct SymbolTableNode* symbolTableHead){
 
   struct SymbolTableNode *currPtr = symbolTableHead;
 
@@ -603,8 +645,37 @@ struct SymbolTableNode* retrieveFromSymbolTable(char const *symbolName){
     currPtr = currPtr->next;
   }
 
-  handleError(ERROR_CODE_SYMBOL_NOT_FOUND, ERROR_MESSAGE_SYMBOL_NOT_FOUND);
-  return 0;
+  // If the symbol was not found in the function's symbol table, it must be looked for
+  // in the symbol table of the main function.
+  // handleError(ERROR_CODE_SYMBOL_NOT_FOUND, ERROR_MESSAGE_SYMBOL_NOT_FOUND);
+  return NULL;
+}
+
+/**
+ * Function that retrieves a symbol from a symbol table given its name.
+ * 
+ * @param symbolName the name of the symbol to retrieve.
+ */ 
+struct SymbolTableNode* retrieveFromSymbolTable(char const *symbolName){
+
+  struct SymbolTableNode *currPtr = NULL;
+
+  // If a function is being executed, first look for the symbol in the function's
+  // symbol table
+  if(functionIsBeingExecuted())
+    currPtr = auxRetrieveFromSymbolTable(symbolName, ptrFunctionCallStackTop->ptrFunctionSymbolNode->ptrFunctionSymbolTableNode);
+
+  // If a function is being executed but the symbol was not found in the function's
+  // symbol table or if no function is being executed, then look for the symbol in
+  // the main function's symbol table.
+  if((functionIsBeingExecuted() && !currPtr) || !functionIsBeingExecuted())
+    currPtr = auxRetrieveFromSymbolTable(symbolName, mainFunctionSymbolTableHead);
+
+  // If even after searching twice the symbol wasn't found, then error out and exit
+  if(!currPtr)
+    handleError(ERROR_CODE_SYMBOL_NOT_FOUND, ERROR_MESSAGE_SYMBOL_NOT_FOUND);
+
+  return currPtr;
 }
 
 /**
@@ -696,6 +767,12 @@ void setIntValueToSymbol(char const *symbolName, int newIntegerValue){
         ERROR_MESSAGE_INVALID_ASSIGNMENT_TO_INT_SYMBOL);
     }
   }
+  else{
+
+    // Error out and exit!
+    handleError(ERROR_CODE_SYMBOL_NOT_FOUND, 
+      ERROR_MESSAGE_SYMBOL_NOT_FOUND);
+  }
 }
 
 /**
@@ -759,19 +836,6 @@ int getFloatingPointValueFromSymbol(char const *symbolName){
 
   return 0;
 }
-
-/**
- * Struct that corresponds to the current function being executed.
- * This represents the call stack.
- */ 
-struct CurrentFunction{
-
-  struct SymbolTableNode* ptrFunctionSymbolNode;
-  struct CurrentFunction* stack;
-  // Flag that indicates whether the function
-  // already executed a 'return' statement.
-  int alreadyReturned;
-};
 
 /**
  * Function that inserts a function to the call stack
@@ -1019,7 +1083,9 @@ int func_exprInt(struct SyntaxTreeNode* exprIntNode){
   else if(exprIntNode->type == FUNCTION_VALUE){
 
     func_func(exprIntNode);
-    struct SymbolTableNode* currFunc = retrieveFromSymbolTable(exprIntNode->value.idName);
+    // As we know that this is a function, then we know that this symbol must exist in the symbol table
+    // of the main function, so directly call the auxiliary method that looks in that specific symbol table.
+    struct SymbolTableNode* currFunc = auxRetrieveFromSymbolTable(exprIntNode->value.idName, mainFunctionSymbolTableHead);
     assert(currFunc->returnType == INTEGER_NUMBER_VALUE);    
     valToReturn = currFunc->value.intVal;
   }
@@ -1081,7 +1147,9 @@ double func_exprDouble(struct SyntaxTreeNode* exprDoubleNode){
   else if(exprDoubleNode-> type == FUNCTION_VALUE){
 
     func_func(exprDoubleNode);
-    struct SymbolTableNode* currFunc = retrieveFromSymbolTable(exprDoubleNode->value.idName);
+    // As we know that this is a function, then we know that this symbol must exist in the symbol table
+    // of the main function, so directly call the auxiliary method that looks in that specific symbol table.
+    struct SymbolTableNode* currFunc = auxRetrieveFromSymbolTable(exprDoubleNode->value.idName, mainFunctionSymbolTableHead);
     assert(currFunc->returnType == FLOATING_POINT_NUMBER_VALUE);    
     valToReturn = currFunc->value.doubleVal;
   }
@@ -1176,15 +1244,210 @@ int isFloatingPointExpr(struct SyntaxTreeNode* exprNode){
 }
 
 /**
+ * Function that computes the length of the symbol table of a given 
+ * function. 
+ * 
+ * @param functionName the name of the function whose symbol table's size
+ * is to be computed.
+ * @returns symbolTableLength the length of the symbol table of that function.
+ */ 
+int computeFunctionSymbolTableLength(char const *functionName){
+
+  // As we know that this is a function, then we know that this symbol must exist in the symbol table
+  // of the main function, so directly call the auxiliary method that looks in that specific symbol table.
+  struct SymbolTableNode* functionSymbol = auxRetrieveFromSymbolTable(functionName, mainFunctionSymbolTableHead);
+  assert(functionSymbol);
+
+  struct SymbolTableNode* currSymbolInFunction = functionSymbol->ptrFunctionSymbolTableNode;
+
+  int symbolTableLength = 0;
+
+  while(currSymbolInFunction != NULL){
+
+    symbolTableLength++;
+    currSymbolInFunction = currSymbolInFunction->next;
+  }
+
+  return symbolTableLength;
+}
+
+/**
+ * Function that computes the amount of parameters passed to a function
+ * 
+ * @param node a node in the syntax subtree corresponding to 
+ * the called function
+ */ 
+int computeAmountOfParametersPassed(struct SyntaxTreeNode* node){
+
+  if(!node)
+    return 0;
+
+  int count = 0;
+  count += (node->type == PARAMETER_VALUE);
+
+  for(int i = 0; i < 4; i++)
+    count += computeAmountOfParametersPassed(node->arrPtr[i]);
+
+  return count;
+}
+
+/**
+ * Function that moves a pointer to a symbol in a function's symbol table a specified
+ * amount of symbols to the right.
+ * 
+ * @param ptrPtrFunctionSymbolTableSymbol a pointer to the pointer of the first symbol 
+ * in the function's symbol table.
+ * @param amountOfMoves the required amount of moves to the right
+ */ 
+void moveSymbolTableNodePointerForward(struct SymbolTableNode** ptrPtrFunctionSymbolTableSymbol, int amountOfMoves){
+
+  for(int i = 0; i < amountOfMoves; i++)
+    *ptrPtrFunctionSymbolTableSymbol = (*ptrPtrFunctionSymbolTableSymbol)->next;
+}
+
+/**
+ * Function that retrieves the next passed parameter in a function call.
+ * 
+ * @param ptrPtrFuncNodeSubStree a pointer to a pointer to the sub tree of a function call.
+ * The idea of the double pointer is to keep track of which passed parameters have already 
+ * been analyzed.
+ * @returns a pointer to the next passed parameter
+ */ 
+struct SyntaxTreeNode* getNextPassedParameter(struct SyntaxTreeNode** ptrPtrFuncNodeSubStree){
+
+  assert(*ptrPtrFuncNodeSubStree);
+  struct SyntaxTreeNode *ptrNextPassedParameter = NULL;
+
+  if((*ptrPtrFuncNodeSubStree)->type == FUNCTION_VALUE){
+
+    assert((*ptrPtrFuncNodeSubStree)->arrPtr[0]);
+    ptrNextPassedParameter = (*ptrPtrFuncNodeSubStree)->arrPtr[0]->arrPtr[0];
+  }
+  else{
+
+    assert((*ptrPtrFuncNodeSubStree)->type == PARAMETER_VALUE);
+    ptrNextPassedParameter = (*ptrPtrFuncNodeSubStree)->arrPtr[0];
+  }
+
+  (*ptrPtrFuncNodeSubStree) = (*ptrPtrFuncNodeSubStree)->arrPtr[0]->arrPtr[1];
+
+  assert(ptrNextPassedParameter);
+  return ptrNextPassedParameter;
+}
+
+/**
  * Function that determines whether the set of parameters passed to 
  * a function is correct.
  * 
- * @param funcNode the root node of the function call
+ * @param funcNode the root node of the called function
  * @returns 1 if the parameter set is correct. Else, 0.
  */ 
 int parametersAreCorrect(struct SyntaxTreeNode* funcNode){
 
+  // 1. Get S, the size of the linked list of the function's symbol table.
+  // 2. Get A, the amount of parameters passed to the called function.
+  // 
+  // Note: S should always be greater than or equal to A. S is greater than A
+  // when the function has variable declarations.
+  // 
+  // 3. Now, the amount of formal parameters in the function must be exactly
+  //    equal to A. Besides, both the formal parameters of the function 
+  //    and the actual parameter values passed to the function are stored 
+  //    in reverse order. So, after moving forward (S - A) nodes in the 
+  //    function's symbol table, a simple check between the current formal 
+  //    parameter in the function's symbol table and the actual parameter 
+  //    in the syntax tree of the main function should suffice to determine
+  //    whether the set of parameter values that were passed is correct.
+
+  // 'functionSymbolTableLength' corresponds to 'S' in the above explanation
+  int functionSymbolTableLength = computeFunctionSymbolTableLength(funcNode->value.idName);
+  // printf("functionSymbolTableLength = %d\n", functionSymbolTableLength);
+  // 'amountOfParametersPassed' corresponds to 'A' in the above explanation
+  int amountOfParametersPassed = computeAmountOfParametersPassed(funcNode);
+  // printf("amountOfParametersPassed = %d\n", amountOfParametersPassed);
+  assert(functionSymbolTableLength >= amountOfParametersPassed);
+
+  // As we know that this is a function, then we know that this symbol must exist in the symbol table
+  // of the main function, so directly call the auxiliary method that looks in that specific symbol table.
+  struct SymbolTableNode* ptrCurrFormalParameter = auxRetrieveFromSymbolTable(funcNode->value.idName, mainFunctionSymbolTableHead)->ptrFunctionSymbolTableNode;
+  moveSymbolTableNodePointerForward(&ptrCurrFormalParameter, functionSymbolTableLength - amountOfParametersPassed);
+
+  struct SyntaxTreeNode* ptrFuncNodeSubStree = funcNode;
+  struct SyntaxTreeNode* ptrCurrPassedParameter = NULL;
+
+  for(int i = 0; i < amountOfParametersPassed; i++){
+
+    ptrCurrPassedParameter = getNextPassedParameter(&ptrFuncNodeSubStree);
+    assert(ptrCurrFormalParameter);
+    assert(ptrCurrPassedParameter);
+
+    // Check whether the value of the 'expr' term passed as a parameter matches the expected 
+    // formal parameter data type.
+    if((isIntegerExpr(ptrCurrPassedParameter) && ptrCurrFormalParameter->type != INTEGER_NUMBER_VALUE)
+    || (isFloatingPointExpr(ptrCurrPassedParameter) && ptrCurrFormalParameter->type != FLOATING_POINT_NUMBER_VALUE)){
+
+      return 0;
+    }
+
+    ptrCurrFormalParameter = ptrCurrFormalParameter->next;
+  }
+
   return 1;
+}
+
+/**
+ * Function that assigns parameter to a function call.
+ * 
+ * Note: For each function call, the function parameters 
+ * are stored as child nodes in the syntax tree of the 
+ * caller (function). To pass the parameters to the function,
+ * the parameter values are assigned to the symbol table 
+ * of the callee (function).
+ */ 
+void assignParameters(struct SyntaxTreeNode* funcNode){
+
+  // 1. Get the size of the linked list of the function's symbol table.
+  int functionSymbolTableLength = computeFunctionSymbolTableLength(funcNode->value.idName);
+
+  // 2. Get the amount of parameters passed to the called function.
+  int amountOfParametersPassed = computeAmountOfParametersPassed(funcNode);
+
+  // functionSymbolTableLength should always be greater than or equal to amountOfParametersPassed. 
+  // functionSymbolTableLength is greater than amountOfParametersPassed when the function has variable
+  // declarations.
+  assert(functionSymbolTableLength >= amountOfParametersPassed);
+
+  // Get a pointer to the first formal parameter to which a value will be assigned. Remember, parameters
+  // are stored in reverse order.
+  struct SymbolTableNode* ptrCurrFormalParameter = auxRetrieveFromSymbolTable(funcNode->value.idName, mainFunctionSymbolTableHead)->ptrFunctionSymbolTableNode;
+  moveSymbolTableNodePointerForward(&ptrCurrFormalParameter, functionSymbolTableLength - amountOfParametersPassed);
+
+  struct SyntaxTreeNode* ptrFuncNodeSubStree = funcNode;
+  struct SyntaxTreeNode* ptrCurrPassedParameter = NULL;
+
+  for(int i = 0; i < amountOfParametersPassed; i++){
+
+    ptrCurrPassedParameter = getNextPassedParameter(&ptrFuncNodeSubStree);
+    assert(ptrCurrFormalParameter);
+    assert(ptrCurrPassedParameter);
+
+    // Assign the passed values to the function's symbol table
+    if(ptrCurrFormalParameter->type == INTEGER_NUMBER_VALUE){
+
+      // Assign to the formal parameter the integer value of the 'expr' term passed 
+      // as a parameter
+      ptrCurrFormalParameter->value.intVal = func_exprInt(ptrCurrPassedParameter);
+    }
+    else{
+
+      assert(ptrCurrFormalParameter->type == FLOATING_POINT_NUMBER_VALUE);
+      // Assign to the formal parameter the double value of the 'expr' term passed 
+      // as a parameter
+      ptrCurrFormalParameter->value.doubleVal = func_exprDouble(ptrCurrPassedParameter);
+    }
+
+    ptrCurrFormalParameter = ptrCurrFormalParameter->next;
+  }
 }
 
 /**
@@ -1194,14 +1457,17 @@ int parametersAreCorrect(struct SyntaxTreeNode* funcNode){
  */ 
 void func_func(struct SyntaxTreeNode* funcNode){
 
-  // Assert that the passed parameters are correct
-  assert(parametersAreCorrect(funcNode));
+  // Check whether the passed parameters are correct
+  if(!parametersAreCorrect(funcNode))
+    handleError(ERROR_CODE_PARAMETER_SET_MISMATCH, ERROR_MESSAGE_PARAMETER_SET_MISMATCH);
 
   // Assign the parameters
-  // assignParameters(funcNode);
+  assignParameters(funcNode);
 
   // Get the symbol of the function
-  struct SymbolTableNode* funcSymbol = retrieveFromSymbolTable(funcNode->value.idName);
+  // As we know that this is a function, then we know that this symbol must exist in the symbol table
+  // of the main function, so directly call the auxiliary method that looks in that specific symbol table.
+  struct SymbolTableNode* funcSymbol = auxRetrieveFromSymbolTable(funcNode->value.idName, mainFunctionSymbolTableHead);
   
   // Add the function to the call stack
   insertFunctionCallToStack(funcSymbol);
@@ -1244,7 +1510,9 @@ void func_print(struct SyntaxTreeNode* printNode){
     if(printNode->arrPtr[0]->type == FUNCTION_VALUE){ 
 
       func_func(printNode->arrPtr[0]);
-      struct SymbolTableNode* currFunc = retrieveFromSymbolTable(printNode->arrPtr[0]->value.idName);
+      // As we know that this is a function, then we know that this symbol must exist in the symbol table
+      // of the main function, so directly call the auxiliary method that looks in that specific symbol table.
+      struct SymbolTableNode* currFunc = auxRetrieveFromSymbolTable(printNode->arrPtr[0]->value.idName, mainFunctionSymbolTableHead);
       
       if(currFunc->returnType == INTEGER_NUMBER_VALUE){
 
@@ -1576,31 +1844,6 @@ void func_return(struct SyntaxTreeNode* returnNode){
   // Mark that this function already executed a 'return' statement
   // to skip the rest of the function body.
   ptrFunctionCallStackTop->alreadyReturned = 1;
-}
-
-/**
- * Function that determines whether a function
- * is being executed.
- * 
- * @returns a positive number if a function is being
- * executed. Else, zero.
- */ 
-int functionIsBeingExecuted(){
-
-  return ptrFunctionCallStackTop != NULL;
-}
-
-/**
- * Function that determines whether the current function
- * being executed already executed a 'return' statement.
- * 
- * @returns a positive number if the current function
- * being executed already executed a 'return' statement.
- * Else, zero.
- */ 
-int currentFunctionAlreadyReturned(){
-
-  return ptrFunctionCallStackTop->alreadyReturned;
 }
 
 /**
