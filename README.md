@@ -30,8 +30,8 @@ Make
 
 ## Instructions for running a test
 
-- Compile the project
-- Execute the following command in bash:
+1. Compile the project
+2. Execute the following command in bash:
 ```
 ./a.out <PATH_TO_TEST_NAME>
 ```
