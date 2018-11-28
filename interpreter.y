@@ -1206,7 +1206,9 @@ void func_func(struct SyntaxTreeNode* funcNode){
   // Add the function to the call stack
   insertFunctionCallToStack(funcSymbol);
   
+  #ifdef _PRINT_CALL_STACK
   printCallStack();
+  #endif
   
   // Execute the function
   traverseTree(funcSymbol->ptrFunctionSyntaxTreeRootNode);

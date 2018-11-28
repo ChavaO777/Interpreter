@@ -8,10 +8,10 @@ Execute the following commands in bash:
 ### a. Debug mode
 
 ```
-Make CFLAGS="-D_PRINT_SYNTAX_TREE -D_PRINT_SYMBOL_TABLE"
+Make CFLAGS="-D_PRINT_SYNTAX_TREE -D_PRINT_SYMBOL_TABLE -D_PRINT_CALL_STACK"
 ```
 
-> **Note:** This would print both the syntax tree and the symbol table of the input program. If desired, only one of those flags could be passed so either the syntax tree or the symbol table is printed.
+> **Note:** This would print the syntax tree, the symbol table of the input program and the call stack for any new function call. If desired, only a subset of those flags could be passed.
 
 ### b. Standard mode
 
