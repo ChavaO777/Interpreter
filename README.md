@@ -39,6 +39,7 @@ Make
 **E.g.** 
 
 ```
+Make
 ./a.out test/print/integers/test.print_expr.oliart
 ```
 
