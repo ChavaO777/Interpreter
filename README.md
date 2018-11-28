@@ -26,7 +26,7 @@ Make CFLAGS="-D_PRINT_PARSE_TRACE -D_PRINT_SYNTAX_TREE -D_PRINT_SYMBOL_TABLE -D_
 Make
 ```
 
-> **Note:** In the Makefile, the "-ll" flag is "-lfl" in Windows. The "-t" flag is the trace flag. See the file for details.
+> **Note:** In the Makefile, the "-ll" flag should be changed to "-lfl" for Windows. See the file for details.
 
 ## Instructions for running a test
 
