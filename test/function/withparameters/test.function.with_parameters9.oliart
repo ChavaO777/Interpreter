@@ -1,0 +1,19 @@
+program uno
+{
+    fun add (var x: int, var y: int) : int
+    {
+
+    }
+    {
+        print -99999;
+        print x;
+        print -88888;
+        print y;
+        print -77777;
+        print x + y;
+        return x + y;
+    }
+}
+{  
+    print add(add(1, 2), add(3, 4));
+}

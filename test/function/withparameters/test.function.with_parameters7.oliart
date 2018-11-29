@@ -1,0 +1,31 @@
+program uno
+{
+    fun subtract (var x: int, var y: int) : int
+    {
+        
+    }
+    {
+        return x - y;
+    }
+
+    fun add (var x: int, var y: int) : int
+    {
+        
+    }
+    {
+        return x + y;
+    }
+
+    fun multiply(var x: int, var y: int) : int
+    {
+
+    }
+    {
+        return x * y;
+    }
+}
+{  
+    print add(1, 2);
+    print subtract(1, 2);
+    print multiply(3, 9);
+}

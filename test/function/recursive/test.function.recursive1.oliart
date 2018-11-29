@@ -1,0 +1,27 @@
+program uno
+{
+    fun fibo (var n: int) : int
+    {
+        var a: int;
+        var b: int
+    }
+    {
+        print -999999;
+        print n;
+        print -999999;
+
+        if(n < 0)
+            return -12312;
+
+        if(n = 0)
+            return n;
+
+        if(n = 1)
+            return n;
+
+        return (fibo(n - 1) + fibo(n - 2));
+    }
+}
+{  
+    print fibo(2);
+}
