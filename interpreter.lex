@@ -80,8 +80,6 @@ return                                                  { return RES_WORD_RETURN
 
 <<EOF>>                                                 { return END_OF_FILE; } /* End-of-file */
 
-[/]+.*                                                  { printf(""); } /* Comment */
-
 " "                                                     { ; } /* If the space returns a value, a syntax error will be produced. */
 
 "\t"                                                     { ; } /* If the tab returns a value, a syntax error will be produced. */
