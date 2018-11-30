@@ -1082,14 +1082,12 @@ int func_exprInt(struct SyntaxTreeNode* exprIntNode){
   }
   else if(exprIntNode->type == FUNCTION_VALUE){
 
-    printf("Found expression that is a function.\n");
     func_func(exprIntNode);
     // As we know that this is a function, then we know that this symbol must exist in the symbol table
     // of the main function, so directly call the auxiliary method that looks in that specific symbol table.
     struct SymbolTableNode* currFunc = auxRetrieveFromSymbolTable(exprIntNode->value.idName, mainFunctionSymbolTableHead);
     assert(currFunc->returnType == INTEGER_NUMBER_VALUE);    
     valToReturn = currFunc->value.intVal;
-    printf("valToReturn = %d\n", valToReturn);
   }
 
   return valToReturn;
