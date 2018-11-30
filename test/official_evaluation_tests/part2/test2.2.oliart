@@ -1,0 +1,30 @@
+program dos
+{
+   var x : int;
+   var y : int
+
+    fun ff (var z : int, var x : int) : int
+    {
+        var yaya : int;
+        var yeye : int
+    }
+    {
+        set yeye x;
+        set yaya yeye + 2;
+        return yaya;
+    }
+
+    fun gg(var w : int) : int
+    {
+        var x : int
+    }
+        return w;
+    }
+{
+   read x;
+   read y;
+   set x ff(x, y);
+   set y gg(x);
+   print x;
+   print y;
+}

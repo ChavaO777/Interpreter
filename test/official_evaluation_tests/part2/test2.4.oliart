@@ -1,0 +1,12 @@
+program cuatro
+{
+   var xx: float;
+   var yy: float
+}
+{
+
+   read xx;
+   read yy;
+   if (xx < yy) set xx yy * 2.0;
+   print xx;
+}

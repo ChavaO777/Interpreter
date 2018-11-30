@@ -1,0 +1,34 @@
+program cinco
+{
+    var x : int;
+    var y : int
+
+    fun suma(var m: int, var n: int) : int
+    {
+
+    }
+    {
+        return m + n;
+    }
+
+    fun multiplica(var a: int, var z: int) : int
+    {
+        var acumula : int;
+        var i : int
+    }
+    {
+        set acumula 0;
+        ifelse (x < 0) return 0;
+        {
+            for set i 1 to x step 1 do set acumula suma(acumula, y);
+            return acumula;
+        }
+    }
+}
+{
+
+   read x;
+   read y;
+   set x multiplica(2,4);
+   print x;
+}
