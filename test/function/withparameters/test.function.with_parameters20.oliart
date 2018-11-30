@@ -1,0 +1,19 @@
+program uno
+{
+    var global: int
+    fun function (var x: int, var y: int) : int
+    {
+        var i: int
+    }
+    {
+	for set i 0 to 5 step 1 do
+    	{
+		print x - i;
+     	}
+	return y-global;
+    }
+}
+{  
+	read global;
+	print function(5,5);
+}
