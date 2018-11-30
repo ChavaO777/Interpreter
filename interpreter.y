@@ -1285,7 +1285,8 @@ int computeAmountOfParametersPassed(struct SyntaxTreeNode* node){
   int count = 0;
   count += (node->type == PARAMETER_VALUE);
 
-  for(int i = 0; i < 4; i++)
+  int i = 0;
+  for(i = 0; i < 4; i++)
     count += computeAmountOfParametersPassed(node->arrPtr[i]);
 
   return count;
@@ -1301,7 +1302,8 @@ int computeAmountOfParametersPassed(struct SyntaxTreeNode* node){
  */ 
 void moveSymbolTableNodePointerForward(struct SymbolTableNode** ptrPtrFunctionSymbolTableSymbol, int amountOfMoves){
 
-  for(int i = 0; i < amountOfMoves; i++)
+  int i = 0;
+  for(i = 0; i < amountOfMoves; i++)
     *ptrPtrFunctionSymbolTableSymbol = (*ptrPtrFunctionSymbolTableSymbol)->next;
 }
 
@@ -1375,7 +1377,8 @@ int parametersAreCorrect(struct SyntaxTreeNode* funcNode){
   struct SyntaxTreeNode* ptrFuncNodeSubStree = funcNode;
   struct SyntaxTreeNode* ptrCurrPassedParameter = NULL;
 
-  for(int i = 0; i < amountOfParametersPassed; i++){
+  int i = 0;
+  for(i = 0; i < amountOfParametersPassed; i++){
 
     ptrCurrPassedParameter = getNextPassedParameter(&ptrFuncNodeSubStree);
     assert(ptrCurrFormalParameter);
@@ -1425,7 +1428,8 @@ void assignParameters(struct SyntaxTreeNode* funcNode){
   struct SyntaxTreeNode* ptrFuncNodeSubStree = funcNode;
   struct SyntaxTreeNode* ptrCurrPassedParameter = NULL;
 
-  for(int i = 0; i < amountOfParametersPassed; i++){
+  int i = 0;
+  for(i = 0; i < amountOfParametersPassed; i++){
 
     ptrCurrPassedParameter = getNextPassedParameter(&ptrFuncNodeSubStree);
     assert(ptrCurrFormalParameter);
