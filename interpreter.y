@@ -1082,12 +1082,14 @@ int func_exprInt(struct SyntaxTreeNode* exprIntNode){
   }
   else if(exprIntNode->type == FUNCTION_VALUE){
 
+    printf("Found expression that is a function.\n");
     func_func(exprIntNode);
     // As we know that this is a function, then we know that this symbol must exist in the symbol table
     // of the main function, so directly call the auxiliary method that looks in that specific symbol table.
     struct SymbolTableNode* currFunc = auxRetrieveFromSymbolTable(exprIntNode->value.idName, mainFunctionSymbolTableHead);
     assert(currFunc->returnType == INTEGER_NUMBER_VALUE);    
     valToReturn = currFunc->value.intVal;
+    printf("valToReturn = %d\n", valToReturn);
   }
 
   return valToReturn;
@@ -1175,6 +1177,13 @@ int computeSubTreeNodeTypeCount(int nodeType, struct SyntaxTreeNode* node){
   if(node->type == nodeType){
 
     count++;
+  }
+  else if(node->type == FUNCTION_VALUE){
+
+    struct SymbolTableNode* ptrFunction = retrieveFromSymbolTable(node->value.idName);
+    
+    if(ptrFunction->returnType == nodeType)
+      count++;
   }
   
   // In case it is an identifier
@@ -1282,14 +1291,10 @@ int computeAmountOfParametersPassed(struct SyntaxTreeNode* node){
   if(!node)
     return 0;
 
-  int count = 0;
-  count += (node->type == PARAMETER_VALUE);
-
-  int i = 0;
-  for(i = 0; i < 4; i++)
-    count += computeAmountOfParametersPassed(node->arrPtr[i]);
-
-  return count;
+  // All actual parameter values are stored at arrPtr[0], i.e.
+  // the 'next' parameters are always at index 1 of arrPtr
+  return (node->type == PARAMETER_VALUE)
+    + computeAmountOfParametersPassed(node->arrPtr[1]);
 }
 
 /**
@@ -1413,7 +1418,7 @@ void assignParameters(struct SyntaxTreeNode* funcNode){
   int functionSymbolTableLength = computeFunctionSymbolTableLength(funcNode->value.idName);
 
   // 2. Get the amount of parameters passed to the called function.
-  int amountOfParametersPassed = computeAmountOfParametersPassed(funcNode);
+  int amountOfParametersPassed = computeAmountOfParametersPassed(funcNode->arrPtr[0]);
 
   // functionSymbolTableLength should always be greater than or equal to amountOfParametersPassed. 
   // functionSymbolTableLength is greater than amountOfParametersPassed when the function has variable

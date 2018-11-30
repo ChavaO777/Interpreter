@@ -1,0 +1,27 @@
+program uno
+{
+    fun max2 (var x: int, var y: int) : int
+    {
+
+    }
+    {
+        if (x > y)
+            return x;
+
+        return y;
+    }
+
+    fun max (var x: int, var y: int) : int
+    {
+
+    }
+    {
+        if (x > y)
+            return x;
+
+        return y;
+    }
+}
+{  
+    print max(max2(9999, 1), max2(4123123, 50));
+}
